@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Quicksand", system-ui, -apple-system, sans-serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+
+  --color-background: #faf7f8;
+  --color-foreground: #2d2638;
+  
+  /* Maternal warmth palette: Rose/Blush/Berry/Lavender/Sage */
+  --color-primary: #e05d82;
+  --color-primary-hover: #cc4970;
+  --color-primary-light: #fff0f4;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #9c75bf;
+  --color-secondary-light: #f5edfc;
+  --color-secondary-foreground: #ffffff;
+
+  --color-blush: #fce8ee;
+  --color-lavender: #f1ebfa;
+  --color-sky-soft: #e8f4fc;
+  --color-sage: #e8f7f0;
+  --color-peach: #fff2ea;
+
+  --color-destructive: #ea384d;
+  --color-destructive-foreground: #ffffff;
+}
+
+@layer base {
+  * {
+    border-color: rgba(226, 218, 228, 0.6);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(254, 235, 240, 0.7) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(243, 235, 255, 0.7) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, rgba(235, 246, 255, 0.6) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4, .font-heading {
+    font-family: var(--font-display);
+  }
+}
+
+/* Custom glowing pulse for SOS button */
+@keyframes sosGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(234, 56, 77, 0.6), 0 0 30px rgba(234, 56, 77, 0.3);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(234, 56, 77, 0.9), 0 0 50px rgba(234, 56, 77, 0.5);
+    transform: scale(1.02);
+  }
+}
+
+.animate-sos-glow {
+  animation: sosGlow 2s infinite ease-in-out;
+}
+
+/* Soft card utilities */
+.card-warm {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(241, 230, 240, 0.95);
+  box-shadow: 0 10px 30px -10px rgba(180, 150, 190, 0.15), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+  border-radius: 1.25rem;
+}
+
+.card-warm-hover {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-warm-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px -10px rgba(180, 140, 190, 0.22), 0 6px 16px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Custom Scrollbar for smooth timelines */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(245, 235, 245, 0.5);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(224, 93, 130, 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(224, 93, 130, 0.5);
+}
