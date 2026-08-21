@@ -15,7 +15,7 @@ export default function MedicationChecklist({ token }) {
 
   const fetchMeds = async () => {
     try {
-      const res = await fetch("https://novacare-scog.onrender.com/api/patient/medications", {
+      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/medications", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -30,7 +30,7 @@ export default function MedicationChecklist({ token }) {
     const updated = meds.map(m => m.id === item.id ? { ...m, taken: !m.taken } : m);
     setMeds(updated);
     try {
-      await fetch("https://novacare-scog.onrender.com/api/patient/medication-toggle", {
+      await fetch("https://novacare-sccg.onrender.com/api/patient/medication-toggle", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ id: item.id, taken: !item.taken })
@@ -45,7 +45,7 @@ export default function MedicationChecklist({ token }) {
     e.preventDefault();
     if (!newMedName.trim()) return;
     try {
-      const res = await fetch("https://novacare-scog.onrender.com/api/patient/medication", {
+      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/medication", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ medicationName: newMedName, scheduledTime: newTime })

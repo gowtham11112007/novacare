@@ -62,7 +62,7 @@ export default function DoctorDashboard({ token }) {
   }, [selectedPatient]);
 
   const fetchPatients = async () => {
-    const res = await fetch('https://novacare-scog.onrender.com/api/doctor/patients', {
+    const res = await fetch('https://novacare-sccg.onrender.com/api/doctor/patients', {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (res.ok) {
@@ -72,7 +72,7 @@ export default function DoctorDashboard({ token }) {
   };
 
   const fetchAppointments = async () => {
-    const res = await fetch('https://novacare-scog.onrender.com/api/doctor/appointments', {
+    const res = await fetch('https://novacare-sccg.onrender.com/api/doctor/appointments', {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (res.ok) {
@@ -82,7 +82,7 @@ export default function DoctorDashboard({ token }) {
   };
 
   const fetchWellness = async (id) => {
-    const res = await fetch(`https://novacare-scog.onrender.com/api/doctor/patient/${id}/wellness`, {
+    const res = await fetch(`https://novacare-sccg.onrender.com/api/doctor/patient/${id}/wellness`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (res.ok) {
@@ -92,7 +92,7 @@ export default function DoctorDashboard({ token }) {
   };
 
   const fetchAdvice = async (id) => {
-    const res = await fetch(`https://novacare-scog.onrender.com/api/doctor/patient/${id}/advice`, {
+    const res = await fetch(`https://novacare-sccg.onrender.com/api/doctor/patient/${id}/advice`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (res.ok) {
@@ -102,7 +102,7 @@ export default function DoctorDashboard({ token }) {
   };
 
   const searchTrie = async () => {
-    const res = await fetch(`https://novacare-scog.onrender.com/api/doctor/search?q=${searchQuery}`, {
+    const res = await fetch(`https://novacare-sccg.onrender.com/api/doctor/search?q=${searchQuery}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (res.ok) {
@@ -113,7 +113,7 @@ export default function DoctorDashboard({ token }) {
 
   const handleUpdatePatient = async (e) => {
     e.preventDefault();
-    const res = await fetch(`https://novacare-scog.onrender.com/api/doctor/patient/${selectedPatient.id}/update`, {
+    const res = await fetch(`https://novacare-sccg.onrender.com/api/doctor/patient/${selectedPatient.id}/update`, {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ export default function DoctorDashboard({ token }) {
     e.preventDefault();
     if (!selectedPatient) return;
     
-    const res = await fetch('https://novacare-scog.onrender.com/api/doctor/advice', {
+    const res = await fetch('https://novacare-sccg.onrender.com/api/doctor/advice', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -159,7 +159,7 @@ export default function DoctorDashboard({ token }) {
   };
 
   const handleUndo = async () => {
-    const res = await fetch('https://novacare-scog.onrender.com/api/doctor/undo-advice', {
+    const res = await fetch('https://novacare-sccg.onrender.com/api/doctor/undo-advice', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` }
     });

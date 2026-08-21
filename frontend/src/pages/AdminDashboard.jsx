@@ -49,7 +49,7 @@ export default function AdminDashboard({ token }) {
 
   const fetchMetrics = async () => {
     try {
-      const res = await fetch('https://novacare-scog.onrender.com/api/admin/dashboard', {
+      const res = await fetch('https://novacare-sccg.onrender.com/api/admin/dashboard', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -68,7 +68,7 @@ export default function AdminDashboard({ token }) {
 
   const fetchAllPatients = async () => {
     try {
-      const res = await fetch('https://novacare-scog.onrender.com/api/admin/all-patients', {
+      const res = await fetch('https://novacare-sccg.onrender.com/api/admin/all-patients', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -82,7 +82,7 @@ export default function AdminDashboard({ token }) {
 
   const fetchDoctorKeys = async () => {
     try {
-      const res = await fetch('https://novacare-scog.onrender.com/api/admin/doctor-keys', {
+      const res = await fetch('https://novacare-sccg.onrender.com/api/admin/doctor-keys', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -115,7 +115,7 @@ export default function AdminDashboard({ token }) {
   };
 
   const handleAutoAssign = async (patientId) => {
-    const res = await fetch('https://novacare-scog.onrender.com/api/admin/auto-assign', {
+    const res = await fetch('https://novacare-sccg.onrender.com/api/admin/auto-assign', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -139,7 +139,7 @@ export default function AdminDashboard({ token }) {
     e.preventDefault();
     if (!newPasskey.trim()) return;
     
-    const res = await fetch('https://novacare-scog.onrender.com/api/admin/generate-doctor-key', {
+    const res = await fetch('https://novacare-sccg.onrender.com/api/admin/generate-doctor-key', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',

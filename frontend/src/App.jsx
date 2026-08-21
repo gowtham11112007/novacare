@@ -36,7 +36,7 @@ function App() {
 
   const fetchRole = async (token) => {
     try {
-      const res = await fetch('https://novacare-scog.onrender.com/api/users/me', {
+      const res = await fetch('https://novacare-sccg.onrender.com/api/users/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {

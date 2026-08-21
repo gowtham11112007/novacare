@@ -17,7 +17,7 @@ export default function VitalsLog({ token }) {
 
   const fetchVitals = async () => {
     try {
-      const res = await fetch("https://novacare-scog.onrender.com/api/patient/vitals-history", {
+      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/vitals-history", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -32,7 +32,7 @@ export default function VitalsLog({ token }) {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch("https://novacare-scog.onrender.com/api/patient/vitals", {
+      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/vitals", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
