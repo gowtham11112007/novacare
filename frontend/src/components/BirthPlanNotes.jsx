@@ -17,7 +17,7 @@ export default function BirthPlanNotes({ token }) {
 
   const fetchPlan = async () => {
     try {
-      const res = await fetch("http://localhost:5001/api/patient/birth-plan", {
+      const res = await fetch("https://novacare-scog.onrender.com/api/patient/birth-plan", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -39,7 +39,7 @@ export default function BirthPlanNotes({ token }) {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const res = await fetch("http://localhost:5001/api/patient/birth-plan", {
+      const res = await fetch("https://novacare-scog.onrender.com/api/patient/birth-plan", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({

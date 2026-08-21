@@ -48,7 +48,7 @@ export default function PatientDashboard({ token }) {
   const generateReport = async () => {
     setIsGeneratingReport(true);
     try {
-      const res = await fetch('http://localhost:5001/api/patient/generate-report', {
+      const res = await fetch('https://novacare-scog.onrender.com/api/patient/generate-report', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -112,7 +112,7 @@ export default function PatientDashboard({ token }) {
 
   const fetchDetails = async () => {
     try {
-      const res = await fetch('http://localhost:5001/api/patient/details', {
+      const res = await fetch('https://novacare-scog.onrender.com/api/patient/details', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -129,7 +129,7 @@ export default function PatientDashboard({ token }) {
 
   const fetchMyAppointments = async () => {
     try {
-      const res = await fetch('http://localhost:5001/api/patient/appointments', {
+      const res = await fetch('https://novacare-scog.onrender.com/api/patient/appointments', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -144,7 +144,7 @@ export default function PatientDashboard({ token }) {
     e.preventDefault();
     setIsOnboarding(true);
     try {
-      const res = await fetch('http://localhost:5001/api/patient/onboarding', {
+      const res = await fetch('https://novacare-scog.onrender.com/api/patient/onboarding', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -170,7 +170,7 @@ export default function PatientDashboard({ token }) {
 
   const fetchTimeline = async () => {
     try {
-      const res = await fetch('http://localhost:5001/api/patient/timeline', {
+      const res = await fetch('https://novacare-scog.onrender.com/api/patient/timeline', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) setTimeline(await res.json());
@@ -181,7 +181,7 @@ export default function PatientDashboard({ token }) {
 
   const fetchSlots = async () => {
     try {
-      const res = await fetch('http://localhost:5001/api/appointments/slots', {
+      const res = await fetch('https://novacare-scog.onrender.com/api/appointments/slots', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) setSlots(await res.json());
@@ -215,7 +215,7 @@ export default function PatientDashboard({ token }) {
   const submitSymptoms = async (sos = false) => {
     setIsSubmittingSymptoms(true);
     try {
-      const res = await fetch('http://localhost:5001/api/patient/symptoms', {
+      const res = await fetch('https://novacare-scog.onrender.com/api/patient/symptoms', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -244,7 +244,7 @@ export default function PatientDashboard({ token }) {
   const bookSlot = async (slot) => {
     setSelectedSlot(slot);
     try {
-      const res = await fetch('http://localhost:5001/api/appointments/book', {
+      const res = await fetch('https://novacare-scog.onrender.com/api/appointments/book', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

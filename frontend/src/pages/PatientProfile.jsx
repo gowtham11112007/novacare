@@ -38,7 +38,7 @@ export default function PatientProfile({ token }) {
   const fetchPatientDetails = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:5001/api/patient/details', {
+      const res = await fetch('https://novacare-scog.onrender.com/api/patient/details', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -94,7 +94,7 @@ export default function PatientProfile({ token }) {
 
     try {
       setSaving(true);
-      const res = await fetch('http://localhost:5001/api/patient/onboarding', {
+      const res = await fetch('https://novacare-scog.onrender.com/api/patient/onboarding', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

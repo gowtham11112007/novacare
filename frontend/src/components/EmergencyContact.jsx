@@ -15,7 +15,7 @@ export default function EmergencyContact({ token }) {
 
   const fetchContact = async () => {
     try {
-      const res = await fetch("http://localhost:5001/api/patient/emergency-contact", {
+      const res = await fetch("https://novacare-scog.onrender.com/api/patient/emergency-contact", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -34,7 +34,7 @@ export default function EmergencyContact({ token }) {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5001/api/patient/emergency-contact", {
+      const res = await fetch("https://novacare-scog.onrender.com/api/patient/emergency-contact", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ contactName, contactPhone, relationship })
