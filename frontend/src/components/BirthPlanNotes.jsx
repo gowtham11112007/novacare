@@ -17,7 +17,7 @@ export default function BirthPlanNotes({ token }) {
 
   const fetchPlan = async () => {
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/birth-plan", {
+      const res = await fetch("http://localhost:5001/api/patient/birth-plan", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -39,7 +39,7 @@ export default function BirthPlanNotes({ token }) {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/birth-plan", {
+      const res = await fetch("http://localhost:5001/api/patient/birth-plan", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -83,7 +83,7 @@ export default function BirthPlanNotes({ token }) {
               value={painManagement}
               onChange={e => setPain(e.target.value)}
               placeholder="e.g. Epidural, hydrotherapy, breathing techniques"
-              className="w-full bg-rose-50/30 p-2.5 rounded-xl text-xs border border-rose-100 outline-none focus:border-[#FF6F61]"
+              className="w-full bg-rose-50/30 p-2.5 rounded-xl text-xs border border-rose-100 outline-none focus:border-[#FF69B4]"
             />
           </div>
 
@@ -94,7 +94,7 @@ export default function BirthPlanNotes({ token }) {
               value={supportPeople}
               onChange={e => setSupport(e.target.value)}
               placeholder="e.g. Partner, Doula, Mother"
-              className="w-full bg-rose-50/30 p-2.5 rounded-xl text-xs border border-rose-100 outline-none focus:border-[#FF6F61]"
+              className="w-full bg-rose-50/30 p-2.5 rounded-xl text-xs border border-rose-100 outline-none focus:border-[#FF69B4]"
             />
           </div>
         </div>
@@ -106,14 +106,14 @@ export default function BirthPlanNotes({ token }) {
             value={atmosphereNotes}
             onChange={e => setAtmosphere(e.target.value)}
             placeholder="e.g. Dimmed lighting, calm playlist, delayed cord clamping, immediate skin-to-skin"
-            className="w-full bg-rose-50/30 p-2.5 rounded-xl text-xs border border-rose-100 outline-none focus:border-[#FF6F61]"
+            className="w-full bg-rose-50/30 p-2.5 rounded-xl text-xs border border-rose-100 outline-none focus:border-[#FF69B4]"
           />
         </div>
 
         <button
           type="submit"
           disabled={isSaving}
-          className="px-6 py-2.5 bg-gradient-to-r from-[#FF6F61] to-[#FF8E72] text-white rounded-xl text-xs font-bold hover:opacity-95 transition shadow-md shadow-rose-500/20 flex items-center gap-1.5"
+          className="px-6 py-2.5 bg-gradient-to-r from-[#FF69B4] to-[#DDA0DD] text-white rounded-xl text-xs font-bold hover:opacity-95 transition shadow-md shadow-rose-500/20 flex items-center gap-1.5"
         >
           <Save className="w-3.5 h-3.5" />
           {isSaving ? "Saving Plan..." : "Save Birth Preferences"}

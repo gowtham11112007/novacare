@@ -4,9 +4,13 @@ import { Play, Pause, RotateCcw, CheckCircle2, Footprints, History, Sparkles } f
 import toast from "react-hot-toast";
 
 export default function KickCounter({ token }) {
-  const [kickCount, setKickCount] = useState(0);
-  const [isActive, setIsActive] = useState(false);
-  const [seconds, setSeconds] = useState(0);
+  const [kickCount, setKickCount] = useState(() => parseInt(localStorage.getItem('kickCount') || '0'));
+  const [isActive, setIsActive] = useState(() => localStorage.getItem('kickActive') === 'true');
+  const [kickStartTime, setKickStartTime] = useState(() => {
+    const saved = localStorage.getItem('kickStartTime');
+    return saved ? parseInt(saved) : null;
+  });
+  const [seconds, setSeconds] = useState(0); // display only
   const [history, setHistory] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -14,14 +18,23 @@ export default function KickCounter({ token }) {
     fetchKickLogs();
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem('kickCount', kickCount);
+    localStorage.setItem('kickActive', isActive);
+    if (kickStartTime) {
+      localStorage.setItem('kickStartTime', kickStartTime);
+    } else {
+      localStorage.removeItem('kickStartTime');
+    }
+  }, [kickCount, isActive, kickStartTime]);
+
   const fetchKickLogs = async () => {
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/kick-logs", {
+      const res = await fetch("http://localhost:5001/api/patient/kick-logs", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
-        const data = await res.json();
-        setHistory(data);
+        setHistory(await res.json());
       }
     } catch (err) {
       console.error(err);
@@ -30,32 +43,39 @@ export default function KickCounter({ token }) {
 
   useEffect(() => {
     let interval = null;
-    if (isActive) {
+    if (isActive && kickStartTime) {
+      // Immediate update
+      setSeconds(Math.floor((Date.now() - kickStartTime) / 1000));
       interval = setInterval(() => {
-        setSeconds(s => s + 1);
+        setSeconds(Math.floor((Date.now() - kickStartTime) / 1000));
       }, 1000);
-    } else if (!isActive && seconds !== 0) {
-      clearInterval(interval);
+    } else {
+      setSeconds(0);
     }
     return () => clearInterval(interval);
-  }, [isActive, seconds]);
+  }, [isActive, kickStartTime]);
 
   const handleRecordKick = () => {
-    if (!isActive) setIsActive(true);
+    if (!isActive) {
+      setIsActive(true);
+      if (!kickStartTime) setKickStartTime(Date.now());
+    }
     const newCount = kickCount + 1;
     setKickCount(newCount);
 
     if (newCount === 10) {
       setIsActive(false);
+      const currentSeconds = Math.floor((Date.now() - kickStartTime) / 1000);
       toast.success("🎉 Reached 10 kicks! Great job monitoring your baby.", { duration: 4000 });
-      saveSession(10, Math.ceil(seconds / 60) || 1, true);
+      saveSession(10, Math.ceil(currentSeconds / 60) || 1, true);
+      setKickStartTime(null);
     }
   };
 
   const saveSession = async (count, durationMins, target) => {
     setIsSaving(true);
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/kick-log", {
+      const res = await fetch("http://localhost:5001/api/patient/kick-log", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,6 +102,7 @@ export default function KickCounter({ token }) {
     setIsActive(false);
     setKickCount(0);
     setSeconds(0);
+    setKickStartTime(null);
   };
 
   const formatTime = (totalSecs) => {
@@ -113,7 +134,7 @@ export default function KickCounter({ token }) {
         {/* Large Interactive Tap Button */}
         <button
           onClick={handleRecordKick}
-          className="group relative w-36 h-36 rounded-full bg-gradient-to-br from-[#FF6F61] to-[#FF8E72] text-white flex flex-col items-center justify-center shadow-lg shadow-rose-500/30 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
+          className="group relative w-36 h-36 rounded-full bg-gradient-to-br from-[#FF69B4] to-[#DDA0DD] text-white flex flex-col items-center justify-center shadow-lg shadow-rose-500/30 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
         >
           <div className="absolute inset-0 rounded-full border-4 border-white/40 animate-ping opacity-25 group-hover:opacity-50" />
           <Footprints className="w-8 h-8 mb-1 opacity-90 group-hover:rotate-12 transition" />
@@ -128,7 +149,7 @@ export default function KickCounter({ token }) {
               <div
                 key={i}
                 className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                  i < kickCount ? "bg-[#FF6F61] scale-110" : "bg-rose-100"
+                  i < kickCount ? "bg-[#FF69B4] scale-110" : "bg-rose-100"
                 }`}
               />
             ))}
@@ -158,7 +179,7 @@ export default function KickCounter({ token }) {
             <button
               onClick={() => saveSession(kickCount, Math.ceil(seconds / 60) || 1, false)}
               disabled={isSaving}
-              className="flex items-center gap-1.5 px-4 py-2 bg-[#FF6F61] text-white hover:bg-rose-600 rounded-xl text-xs font-bold transition shadow-sm"
+              className="flex items-center gap-1.5 px-4 py-2 bg-[#FF69B4] text-white hover:bg-rose-600 rounded-xl text-xs font-bold transition shadow-sm"
             >
               <CheckCircle2 className="w-3.5 h-3.5" /> Save Session
             </button>

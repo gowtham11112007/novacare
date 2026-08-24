@@ -214,6 +214,34 @@ app.post('/api/admin/auto-assign', requireAuth, async (req, res) => {
   res.json({ success: true, assignedDoctor: doctor.id });
 });
 
+// Admin: List all doctors with their actual patient load
+app.get('/api/admin/doctors', requireAuth, async (req, res) => {
+  try {
+    if (req.user.dbRole !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+    const { data: doctors } = await supabase.from('doctors').select('*, users(name, email)');
+    const { data: patients } = await supabase.from('patients').select('assigned_doctor_id');
+    const loadMap = {};
+    (patients || []).forEach(p => { if (p.assigned_doctor_id) loadMap[p.assigned_doctor_id] = (loadMap[p.assigned_doctor_id] || 0) + 1; });
+    const doctorsWithLoad = (doctors || []).map(d => ({ ...d, actual_load: loadMap[d.id] || 0 }));
+    res.json(doctorsWithLoad);
+  } catch (err) { res.json([]); }
+});
+
+// Admin: Manually assign a specific patient to a specific doctor
+app.post('/api/admin/assign-patient', requireAuth, async (req, res) => {
+  try {
+    if (req.user.dbRole !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+    const { patientId, doctorId } = req.body;
+    if (!patientId || !doctorId) return res.status(400).json({ error: 'patientId and doctorId are required' });
+    const { error } = await supabase.from('patients').update({ assigned_doctor_id: doctorId }).eq('id', patientId);
+    if (error) return res.status(400).json({ error: error.message });
+    const { data: doc } = await supabase.from('doctors').select('current_load').eq('id', doctorId).single();
+    await supabase.from('doctors').update({ current_load: (doc?.current_load || 0) + 1 }).eq('id', doctorId);
+    syncDataStructures();
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.get('/api/doctor/patients', requireAuth, async (req, res) => {
   if (req.user.dbRole !== 'doctor') return res.status(403).json({ error: 'Forbidden' });
   
@@ -623,18 +651,39 @@ app.get('/api/doctor/patient/:id/wellness', requireAuth, async (req, res) => {
     const { data: birthPlan } = await supabase.from('birth_plans').select('*').eq('patient_id', id).maybeSingle();
 
     res.json({
-      latestMood: latestMood || { mood: 'good', mood_label: 'Peaceful', recorded_at: new Date().toISOString() },
-      latestKick: latestKick || { kick_count: 10, duration_minutes: 24, recorded_at: new Date().toISOString() },
-      latestVitals: vitals || { weight_kg: 65.8, bp_systolic: 118, bp_diastolic: 78 },
+      latestMood: latestMood || null,
+      latestKick: latestKick || null,
+      latestVitals: vitals || null,
       birthPlan: birthPlan || null
     });
   } catch (err) {
-    res.json({
-      latestMood: { mood: 'good', mood_label: 'Peaceful' },
-      latestKick: { kick_count: 10, duration_minutes: 24 },
-      latestVitals: { weight_kg: 65.8, bp_systolic: 118, bp_diastolic: 78 }
-    });
+    res.json({ latestMood: null, latestKick: null, latestVitals: null });
   }
+});
+
+// Doctor: get last 5 vitals for a patient
+app.get('/api/doctor/patient/:id/vitals', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data } = await supabase.from('vitals_logs').select('*').eq('patient_id', id).order('recorded_at', { ascending: false }).limit(5);
+    res.json(data || []);
+  } catch (err) { res.json([]); }
+});
+
+// Doctor: get 7-day mood trend for a patient
+app.get('/api/doctor/patient/:id/mood-trend', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const { data } = await supabase.from('mood_logs').select('*').eq('patient_id', id).gte('recorded_at', sevenDaysAgo).order('recorded_at', { ascending: true });
+    const moodScores = { great: 5, good: 4, okay: 3, sad: 2, anxious: 1 };
+    const trend = (data || []).map(m => ({
+      date: new Date(m.recorded_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
+      score: moodScores[m.mood] || 3,
+      mood: m.mood_label || m.mood
+    }));
+    res.json(trend);
+  } catch (err) { res.json([]); }
 });
 
 // --- MODULE 2: Patient Record and Health Monitoring Management ---
@@ -725,31 +774,33 @@ app.get('/api/patient/generate-report', requireAuth, async (req, res) => {
 // NEW ENDPOINTS: Full Workflow Connectivity
 // ==============================================================================
 
-// 1. Patient Onboarding — set due_date & trimester after first signup
+// 1. Patient Onboarding — accepts LMP date, derives EDD (LMP + 280 days) and trimester
 app.post('/api/patient/onboarding', requireAuth, async (req, res) => {
   try {
-    const { dueDate, trimester } = req.body;
+    const { dueDate: lmpDate } = req.body; // Frontend sends LMP date in the dueDate field
     const { data: pat } = await supabase.from('patients').select('id').eq('user_id', req.user.dbId).single();
     if (!pat) return res.status(404).json({ error: 'Patient not found' });
 
-    // Auto-calculate trimester from due date if not provided
-    let calculatedTrimester = trimester;
-    if (dueDate && !trimester) {
-      const due = new Date(dueDate);
-      const now = new Date();
-      const diffWeeks = Math.round((due - now) / (7 * 24 * 60 * 60 * 1000));
-      const currentWeek = 40 - diffWeeks;
-      calculatedTrimester = currentWeek <= 12 ? 1 : currentWeek <= 27 ? 2 : 3;
-    }
+    if (!lmpDate) return res.status(400).json({ error: 'LMP date is required' });
+
+    // Derive EDD from LMP: LMP + 280 days (Naegele's rule)
+    const lmp = new Date(lmpDate);
+    const edd = new Date(lmp.getTime() + 280 * 24 * 60 * 60 * 1000);
+    const now = new Date();
+
+    // Calculate current gestational age from LMP
+    const daysPregnant = Math.max(0, Math.floor((now - lmp) / (1000 * 60 * 60 * 24)));
+    const currentWeek = Math.floor(daysPregnant / 7) + 1;
+    const trimester = currentWeek <= 13 ? 1 : currentWeek <= 27 ? 2 : 3;
 
     const { error } = await supabase.from('patients').update({
-      due_date: dueDate,
-      trimester: calculatedTrimester || 1,
+      due_date: edd.toISOString().split('T')[0], // Store the EDD, not LMP
+      trimester,
     }).eq('id', pat.id);
 
     if (error) return res.status(400).json({ error: error.message });
     syncDataStructures();
-    res.json({ success: true });
+    res.json({ success: true, edd: edd.toISOString().split('T')[0], week: currentWeek, trimester });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -791,25 +842,37 @@ app.put('/api/doctor/patient/:id/update', requireAuth, async (req, res) => {
   try {
     if (req.user.dbRole !== 'doctor') return res.status(403).json({ error: 'Forbidden' });
     const { id } = req.params;
-    const { dueDate, trimester } = req.body;
-
+    const { dueDate, lmpDate, trimester } = req.body;
     const updateFields = {};
-    if (dueDate) updateFields.due_date = dueDate;
-    if (trimester) updateFields.trimester = trimester;
 
-    // Auto-calculate trimester from due date
-    if (dueDate && !trimester) {
-      const due = new Date(dueDate);
+    if (lmpDate) {
+      // Naegele's rule: EDD = LMP + 280 days
+      const lmp = new Date(lmpDate);
+      const edd = new Date(lmp.getTime() + 280 * 24 * 60 * 60 * 1000);
+      updateFields.due_date = edd.toISOString().split('T')[0];
       const now = new Date();
-      const diffWeeks = Math.round((due - now) / (7 * 24 * 60 * 60 * 1000));
-      const currentWeek = Math.max(1, Math.min(40, 40 - diffWeeks));
-      updateFields.trimester = currentWeek <= 12 ? 1 : currentWeek <= 27 ? 2 : 3;
+      const daysPregnant = Math.max(0, Math.floor((now - lmp) / (1000 * 60 * 60 * 24)));
+      const currentWeek = Math.floor(daysPregnant / 7) + 1;
+      updateFields.trimester = currentWeek <= 13 ? 1 : currentWeek <= 27 ? 2 : 3;
+    } else if (dueDate) {
+      updateFields.due_date = dueDate;
+      if (trimester) {
+        updateFields.trimester = trimester;
+      } else {
+        const edd = new Date(dueDate);
+        const lmp = new Date(edd.getTime() - 280 * 24 * 60 * 60 * 1000);
+        const now = new Date();
+        const daysPregnant = Math.max(0, Math.floor((now - lmp) / (1000 * 60 * 60 * 24)));
+        const currentWeek = Math.floor(daysPregnant / 7) + 1;
+        updateFields.trimester = currentWeek <= 13 ? 1 : currentWeek <= 27 ? 2 : 3;
+      }
     }
 
+    if (Object.keys(updateFields).length === 0) return res.status(400).json({ error: 'No fields to update' });
     const { error } = await supabase.from('patients').update(updateFields).eq('id', id);
     if (error) return res.status(400).json({ error: error.message });
     syncDataStructures();
-    res.json({ success: true });
+    res.json({ success: true, ...updateFields });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -875,13 +938,24 @@ app.get('/api/admin/doctor-keys', requireAuth, async (req, res) => {
   }
 });
 
-// 8. Admin — list all patients with assignments
+// 8. Admin — list all patients with assignments + calculated weeks pregnant
 app.get('/api/admin/all-patients', requireAuth, async (req, res) => {
   try {
     if (req.user.dbRole !== 'admin') return res.status(403).json({ error: 'Forbidden' });
-    const { data, error } = await supabase.from('patients').select('*, users(name, email), doctors(*, users(name))').order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('patients').select('*, users(name, email), doctors(id, specialization, users(name))').order('created_at', { ascending: false });
     if (error) return res.json([]);
-    res.json(data || []);
+    const now = new Date();
+    const enriched = (data || []).map(p => {
+      let weeksPregnant = null;
+      if (p.due_date) {
+        const edd = new Date(p.due_date);
+        const lmp = new Date(edd.getTime() - 280 * 24 * 60 * 60 * 1000);
+        const days = Math.max(0, Math.floor((now - lmp) / (1000 * 60 * 60 * 24)));
+        weeksPregnant = Math.floor(days / 7);
+      }
+      return { ...p, weeksPregnant };
+    });
+    res.json(enriched);
   } catch (err) {
     res.json([]);
   }

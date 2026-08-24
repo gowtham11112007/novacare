@@ -23,6 +23,9 @@ import VitalsLog from '../components/VitalsLog';
 import BirthPlanNotes from '../components/BirthPlanNotes';
 import EmergencyContact from '../components/EmergencyContact';
 import EducationalTips from '../components/EducationalTips';
+import ContractionTimer from '../components/ContractionTimer';
+import HospitalBagChecklist from '../components/HospitalBagChecklist';
+import BabyNameIdeas from '../components/BabyNameIdeas';
 import { calculatePregnancyWeek, getWeekData } from '../data/pregnancyData';
 
 export default function PatientDashboard({ token }) {
@@ -31,7 +34,11 @@ export default function PatientDashboard({ token }) {
   const [timeline, setTimeline] = useState([]);
   const [slots, setSlots] = useState([]);
   const [riskHistory, setRiskHistory] = useState([]);
-  const [activeTab, setActiveTab] = useState('overview'); // overview, daily, health, care, learn
+  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('novacare_patient_tab') || 'overview'); // overview, daily, health, care, learn
+  
+  useEffect(() => {
+    localStorage.setItem('novacare_patient_tab', activeTab);
+  }, [activeTab]);
   const [isSubmittingSymptoms, setIsSubmittingSymptoms] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [reportData, setReportData] = useState(null);
@@ -48,7 +55,7 @@ export default function PatientDashboard({ token }) {
   const generateReport = async () => {
     setIsGeneratingReport(true);
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/patient/generate-report', {
+      const res = await fetch('http://localhost:5001/api/patient/generate-report', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -112,7 +119,7 @@ export default function PatientDashboard({ token }) {
 
   const fetchDetails = async () => {
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/patient/details', {
+      const res = await fetch('http://localhost:5001/api/patient/details', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -129,7 +136,7 @@ export default function PatientDashboard({ token }) {
 
   const fetchMyAppointments = async () => {
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/patient/appointments', {
+      const res = await fetch('http://localhost:5001/api/patient/appointments', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -144,7 +151,7 @@ export default function PatientDashboard({ token }) {
     e.preventDefault();
     setIsOnboarding(true);
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/patient/onboarding', {
+      const res = await fetch('http://localhost:5001/api/patient/onboarding', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -170,7 +177,7 @@ export default function PatientDashboard({ token }) {
 
   const fetchTimeline = async () => {
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/patient/timeline', {
+      const res = await fetch('http://localhost:5001/api/patient/timeline', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) setTimeline(await res.json());
@@ -181,7 +188,7 @@ export default function PatientDashboard({ token }) {
 
   const fetchSlots = async () => {
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/appointments/slots', {
+      const res = await fetch('http://localhost:5001/api/appointments/slots', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) setSlots(await res.json());
@@ -215,7 +222,7 @@ export default function PatientDashboard({ token }) {
   const submitSymptoms = async (sos = false) => {
     setIsSubmittingSymptoms(true);
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/patient/symptoms', {
+      const res = await fetch('http://localhost:5001/api/patient/symptoms', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -244,7 +251,7 @@ export default function PatientDashboard({ token }) {
   const bookSlot = async (slot) => {
     setSelectedSlot(slot);
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/appointments/book', {
+      const res = await fetch('http://localhost:5001/api/appointments/book', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -291,15 +298,22 @@ export default function PatientDashboard({ token }) {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FFF9F8] text-[#2D2638] flex flex-col font-sans selection:bg-rose-100 selection:text-rose-900 pb-24 md:pb-16 pb-[calc(env(safe-area-inset-bottom)+6rem)]">
+    <div className="min-h-screen bg-[#FFF0F5] text-[#2D2638] flex flex-col font-sans selection:bg-rose-100 selection:text-rose-900 pb-24 md:pb-16 pb-[calc(env(safe-area-inset-bottom)+6rem)]">
       
+      
+      {/* Floating Theme Elements */}
+      <div className="floating-butterfly" style={{ top: '15%', left: '5%', animationDelay: '1s' }}></div>
+      <div className="floating-flower" style={{ top: '65%', left: '90%', animationDelay: '3s' }}></div>
+      <div className="floating-butterfly" style={{ top: '80%', left: '10%', animationDelay: '6s' }}></div>
+      <div className="floating-flower" style={{ top: '25%', left: '85%', animationDelay: '8s' }}></div>
+
       {/* Top Header with Behance-inspired greeting */}
       <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-rose-100/80 px-4 md:px-8 py-3.5 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#FF6F61] via-[#FF8E72] to-[#FFA07A] p-0.5 shadow-md shadow-rose-500/20">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#FF69B4] via-[#DDA0DD] to-[#E6E6FA] p-0.5 shadow-md shadow-rose-500/20">
               <div className="w-full h-full bg-white rounded-[14px] flex items-center justify-center text-xl">
-                🤰
+                🦋🌸
               </div>
             </div>
             <div>
@@ -319,16 +333,16 @@ export default function PatientDashboard({ token }) {
 
           <div className="flex items-center gap-3">
             {/* Assigned Doctor Pill */}
-            <div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 bg-rose-50/80 border border-rose-100 rounded-2xl">
-              <div className="w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs">
+            <div className={`hidden md:flex items-center gap-2 px-3.5 py-1.5 border rounded-2xl ${details.doctors?.users?.name ? 'bg-rose-50/80 border-rose-100' : 'bg-amber-50/80 border-amber-200'}`}>
+              <div className={`w-6 h-6 rounded-full text-white flex items-center justify-center text-xs ${details.doctors?.users?.name ? 'bg-rose-500' : 'bg-amber-400'}`}>
                 <Stethoscope className="w-3.5 h-3.5" />
               </div>
               <div className="text-left text-xs">
                 <span className="font-bold text-gray-800 block">
-                  {details.doctors?.users?.name ? `Dr. ${details.doctors.users.name}` : 'Doctor Assigned'}
+                  {details.doctors?.users?.name ? `Dr. ${details.doctors.users.name}` : 'Awaiting Assignment'}
                 </span>
-                <span className="text-[10px] text-rose-600">
-                  {details.doctors?.specialization || 'OB/GYN Specialist'}
+                <span className={`text-[10px] ${details.doctors?.users?.name ? 'text-rose-600' : 'text-amber-600'}`}>
+                  {details.doctors?.users?.name ? (details.doctors?.specialization || 'OB/GYN Specialist') : 'Admin is assigning your doctor'}
                 </span>
               </div>
             </div>
@@ -371,32 +385,52 @@ export default function PatientDashboard({ token }) {
               exit={{ scale: 0.9, y: 20 }}
               className="card-warm bg-white p-8 max-w-md w-full relative overflow-hidden"
             >
-              <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-[#FF6F61] to-[#FF8E72]"></div>
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-[#FF69B4] to-[#DDA0DD]"></div>
               
               <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500 mb-5 border border-rose-100">
                 <CalendarCheck className="w-6 h-6" />
               </div>
               
               <h2 className="text-2xl font-bold font-heading text-gray-900 mb-2">Welcome to NovaCare!</h2>
-              <p className="text-sm text-gray-500 mb-6">Let's set up your profile to personalize your pregnancy journey.</p>
+              <p className="text-sm text-gray-500 mb-6">Let's personalise your pregnancy care. We need one date to get started.</p>
               
               <form onSubmit={handleOnboardingSubmit} className="space-y-5">
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Estimated Due Date</label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
+                    Last Menstrual Period (LMP) Date
+                  </label>
                   <input
                     type="date"
                     required
                     value={onboardingDueDate}
                     onChange={(e) => setOnboardingDueDate(e.target.value)}
+                    max={new Date().toISOString().split('T')[0]}
                     className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm focus:border-rose-400 focus:ring-1 focus:ring-rose-400 outline-none transition"
                   />
-                  <p className="text-[10px] text-gray-400 mt-1.5">Your trimester will be calculated automatically.</p>
+                  <p className="text-[10px] text-gray-400 mt-1.5">
+                    This is the first day of your last period. Your Expected Due Date (EDD) and current week will be calculated automatically.
+                  </p>
+                  {onboardingDueDate && (() => {
+                    const lmpDate = new Date(onboardingDueDate);
+                    const edd = new Date(lmpDate.getTime() + 280 * 24 * 60 * 60 * 1000);
+                    const now = new Date();
+                    const daysPregnant = Math.max(0, Math.floor((now - lmpDate) / (1000 * 60 * 60 * 24)));
+                    const wks = Math.floor(daysPregnant / 7);
+                    const days = daysPregnant % 7;
+                    return (
+                      <div className="mt-3 bg-rose-50 border border-rose-100 rounded-xl p-3 text-xs text-gray-700 space-y-1">
+                        <p>📅 <strong>Estimated Due Date:</strong> {edd.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                        <p>🦋🌸 <strong>Currently:</strong> {wks} weeks {days} days pregnant</p>
+                        <p>📊 <strong>Trimester:</strong> {wks < 13 ? '1st (Weeks 1–13)' : wks < 27 ? '2nd (Weeks 14–27)' : '3rd (Weeks 28–40)'}</p>
+                      </div>
+                    );
+                  })()}
                 </div>
                 
                 <button 
                   type="submit"
                   disabled={isOnboarding}
-                  className="w-full bg-gradient-to-r from-[#FF6F61] to-[#FF8E72] shadow-[0_4px_14px_rgba(255,111,97,0.3)] hover:shadow-[0_6px_20px_rgba(255,111,97,0.4)] text-white font-bold py-3.5 rounded-xl transition hover:-translate-y-0.5 flex justify-center items-center gap-2"
+                  className="w-full bg-gradient-to-r from-[#FF69B4] to-[#DDA0DD] shadow-[0_4px_14px_rgba(255,111,97,0.3)] hover:shadow-[0_6px_20px_rgba(255,111,97,0.4)] text-white font-bold py-3.5 rounded-xl transition hover:-translate-y-0.5 flex justify-center items-center gap-2"
                 >
                   {isOnboarding ? 'Saving...' : 'Complete Profile Setup'}
                 </button>
@@ -411,25 +445,26 @@ export default function PatientDashboard({ token }) {
         
         {/* PEAK DESIGN: Hero Module 2 Greeting & Vitals */}
         <div className="relative overflow-hidden rounded-[32px] p-6 md:p-8 bg-white border border-rose-50 shadow-[0_20px_40px_-15px_rgba(255,111,97,0.1)] ring-1 ring-white/60">
-          <div className="absolute inset-0 bg-gradient-to-br from-rose-100/40 via-[#FFF9F8] to-orange-50/40" />
+          <div className="absolute inset-0 bg-gradient-to-br from-rose-100/40 via-[#FFF0F5] to-orange-50/40" />
           
           {/* Decorative abstract mesh gradients */}
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-gradient-to-bl from-[#FF6F61]/20 to-[#FF8E72]/10 rounded-full blur-[40px] pointer-events-none" />
+          <div className="absolute -top-24 -right-24 w-64 h-64 bg-gradient-to-bl from-[#FF69B4]/20 to-[#DDA0DD]/10 rounded-full blur-[40px] pointer-events-none" />
           <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-gradient-to-tr from-sky-400/10 to-transparent rounded-full blur-[40px] pointer-events-none" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-b from-white/0 via-white/40 to-white/80 pointer-events-none" />
           
           <div className="relative z-10">
             <h2 className="text-3xl md:text-4xl font-bold font-heading text-gray-900 tracking-tight">
-              {new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 18 ? 'Good afternoon' : 'Good evening'}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6F61] to-[#FF8E72]">{details.users?.name || 'Mom'}</span>! 🌸
+              {new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 18 ? 'Good afternoon' : 'Good evening'}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF69B4] to-[#DDA0DD]">{details.users?.name || 'Mom'}</span>! 🌸
             </h2>
             <p className="text-sm font-bold text-gray-400 mt-2 tracking-widest uppercase">Here's your health overview for today</p>
           </div>
 
           <div className="grid grid-cols-3 gap-3 md:gap-6 mt-8 relative z-10">
             <div className="bg-white/70 backdrop-blur-xl p-5 rounded-[24px] flex flex-col items-center justify-center text-center border border-white shadow-[0_8px_30px_rgb(255,110,127,0.08)] hover:-translate-y-1 transition duration-300 group">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-100/80 to-rose-50 flex items-center justify-center text-2xl shadow-inner mb-3 group-hover:scale-110 transition-transform">🤰</div>
-              <span className="text-xl md:text-2xl font-bold font-heading text-rose-600 leading-none">{pregnancy.week}</span>
-              <span className="text-[10px] md:text-xs uppercase tracking-wider font-bold text-gray-400 mt-2">Pregnancy Week</span>
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-100/80 to-rose-50 flex items-center justify-center text-2xl shadow-inner mb-3 group-hover:scale-110 transition-transform">🦋🌸</div>
+              <span className="text-xl md:text-2xl font-bold font-heading text-rose-600 leading-none">{pregnancy.weeksPregnant}<span className="text-sm ml-0.5">wks</span></span>
+              {pregnancy.extraDays > 0 && <span className="text-xs font-bold text-rose-400 leading-none mt-0.5">{pregnancy.extraDays} days</span>}
+              <span className="text-[10px] md:text-xs uppercase tracking-wider font-bold text-gray-400 mt-2">Pregnant</span>
             </div>
             
             <div className="bg-white/70 backdrop-blur-xl p-5 rounded-[24px] flex flex-col items-center justify-center text-center border border-white shadow-[0_8px_30px_rgb(255,110,127,0.08)] hover:-translate-y-1 transition duration-300 group">
@@ -439,15 +474,19 @@ export default function PatientDashboard({ token }) {
             </div>
             
             <div className="bg-white/70 backdrop-blur-xl p-5 rounded-[24px] flex flex-col items-center justify-center text-center border border-white shadow-[0_8px_30px_rgb(255,110,127,0.08)] hover:-translate-y-1 transition duration-300 group">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-100/80 to-sky-50 flex items-center justify-center text-2xl shadow-inner mb-3 group-hover:scale-110 transition-transform">👩‍⚕️</div>
-              <span className="text-base md:text-xl font-bold font-heading text-gray-800 leading-none line-clamp-1">{details.doctors?.users?.name ? `Dr. ${details.doctors.users.name.split(' ')[0]}` : 'Assigned'}</span>
-              <span className="text-[10px] md:text-xs uppercase tracking-wider font-bold text-gray-400 mt-2">Your Doctor</span>
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner mb-3 group-hover:scale-110 transition-transform ${details.doctors?.users?.name ? 'bg-gradient-to-tr from-sky-100/80 to-sky-50' : 'bg-gradient-to-tr from-amber-100/80 to-amber-50'}`}>👩‍⚕️</div>
+              <span className="text-base md:text-xl font-bold font-heading text-gray-800 leading-none line-clamp-1">
+                {details.doctors?.users?.name ? `Dr. ${details.doctors.users.name.split(' ')[0]}` : '—'}
+              </span>
+              <span className={`text-[10px] md:text-xs font-bold mt-2 uppercase tracking-wider ${details.doctors?.users?.name ? 'text-gray-400' : 'text-amber-500'}`}>
+                {details.doctors?.users?.name ? 'Your Doctor' : 'Pending Admin'}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Tab Navigation Navigation Bar (Desktop Only) */}
-        <div className="hidden md:block sticky top-[69px] z-30 bg-[#FFF9F8]/95 backdrop-blur-sm py-2">
+        <div className="hidden md:block sticky top-[69px] z-30 bg-[#FFF0F5]/95 backdrop-blur-sm py-2">
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar p-1.5 bg-white/80 border border-rose-100/90 rounded-2xl shadow-xs">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -458,7 +497,7 @@ export default function PatientDashboard({ token }) {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all duration-200 whitespace-nowrap cursor-pointer ${
                     isActive
-                      ? 'bg-gradient-to-r from-[#FF6F61] to-[#FF8E72] text-white shadow-md shadow-rose-500/20 scale-102'
+                      ? 'bg-gradient-to-r from-[#FF69B4] to-[#DDA0DD] text-white shadow-md shadow-rose-500/20 scale-102'
                       : 'text-gray-600 hover:bg-rose-50/70 hover:text-rose-700'
                   }`}
                 >
@@ -546,8 +585,8 @@ export default function PatientDashboard({ token }) {
                       onClick={() => setActiveTab('daily')}
                       className="p-4 rounded-3xl bg-white border border-rose-100 cursor-pointer transition shadow-sm hover:shadow-md flex flex-col items-center gap-2 group text-center"
                     >
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-50 to-pink-50 flex items-center justify-center text-4xl shadow-inner group-hover:scale-110 transition">
-                        👩‍👦
+                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-50 to-pink-50 flex items-center justify-center text-rose-500 shadow-inner group-hover:scale-110 transition">
+                        <Heart className="w-8 h-8" />
                       </div>
                       <span className="text-[11px] font-bold font-heading text-rose-600 block mt-1">Talking with Baby</span>
                     </div>
@@ -556,8 +595,8 @@ export default function PatientDashboard({ token }) {
                       onClick={() => setActiveTab('daily')}
                       className="p-4 rounded-3xl bg-white border border-orange-100 cursor-pointer transition shadow-sm hover:shadow-md flex flex-col items-center gap-2 group text-center"
                     >
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center text-4xl shadow-inner group-hover:scale-110 transition">
-                        🧘‍♀️
+                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center text-amber-500 shadow-inner group-hover:scale-110 transition">
+                        <Activity className="w-8 h-8" />
                       </div>
                       <span className="text-[11px] font-bold font-heading text-orange-600 block mt-1">Kegel Exercise</span>
                     </div>
@@ -566,8 +605,8 @@ export default function PatientDashboard({ token }) {
                       onClick={() => setActiveTab('daily')}
                       className="p-4 rounded-3xl bg-white border border-sky-100 cursor-pointer transition shadow-sm hover:shadow-md flex flex-col items-center gap-2 group text-center"
                     >
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-50 to-blue-50 flex items-center justify-center text-4xl shadow-inner group-hover:scale-110 transition">
-                        👣
+                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-50 to-blue-50 flex items-center justify-center text-sky-500 shadow-inner group-hover:scale-110 transition">
+                        <Footprints className="w-8 h-8" />
                       </div>
                       <span className="text-[11px] font-bold font-heading text-sky-600 block mt-1">Kick Counter</span>
                     </div>
@@ -606,6 +645,10 @@ export default function PatientDashboard({ token }) {
                 <MedicationChecklist token={token} />
                 <MoodCheckin token={token} />
               </div>
+              
+              <div className="grid grid-cols-1 gap-6">
+                <ContractionTimer />
+              </div>
             </motion.div>
           )}
 
@@ -643,7 +686,7 @@ export default function PatientDashboard({ token }) {
                   <button 
                     onClick={generateReport}
                     disabled={isGeneratingReport}
-                    className="bg-gradient-to-r from-[#FF6F61] to-[#FF8E72] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md hover:shadow-lg transition disabled:opacity-50 flex items-center gap-2"
+                    className="bg-gradient-to-r from-[#FF69B4] to-[#DDA0DD] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md hover:shadow-lg transition disabled:opacity-50 flex items-center gap-2"
                   >
                     {isGeneratingReport ? 'Processing Records...' : 'Generate Health Report'}
                   </button>
@@ -705,7 +748,7 @@ export default function PatientDashboard({ token }) {
                             fontSize: '12px'
                           }}
                         />
-                        <Line type="monotone" dataKey="risk" stroke="#FF6F61" strokeWidth={3} dot={{ r: 4, fill: '#FF6F61' }} />
+                        <Line type="monotone" dataKey="risk" stroke="#FF69B4" strokeWidth={3} dot={{ r: 4, fill: '#FF69B4' }} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
@@ -727,6 +770,35 @@ export default function PatientDashboard({ token }) {
               transition={{ duration: 0.2 }}
               className="space-y-6"
             >
+              {/* Doctor Contact Card */}
+              {details.doctors?.users?.name && (
+                <div className="card-warm p-6 bg-white/90 border border-rose-100 shadow-[0_8px_30px_rgb(255,110,127,0.06)]">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-100 to-sky-50 flex items-center justify-center text-3xl shadow-inner border border-white">
+                        👩‍⚕️
+                      </div>
+                      <div>
+                        <h3 className="font-heading font-bold text-xl text-gray-800">
+                          Dr. {details.doctors.users.name}
+                        </h3>
+                        <p className="text-sm font-semibold text-rose-600 mb-1">
+                          {details.doctors.specialization || 'OB/GYN Specialist'}
+                        </p>
+                        <p className="text-xs text-gray-500 max-w-sm">
+                          Your assigned physician for your pregnancy journey. They monitor your health metrics and vitals in real-time.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto">
+                      <button className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-rose-50 text-rose-600 font-bold px-4 py-2.5 rounded-xl border border-rose-100 hover:bg-rose-100 transition shadow-sm text-sm">
+                        <MessageSquare className="w-4 h-4" /> Message
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
                 {/* Linked-List Advice Timeline */}
@@ -764,9 +836,9 @@ export default function PatientDashboard({ token }) {
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ duration: 0.3, delay: i * 0.05 }}
-                          className="border-l-3 border-[#FF6F61] pl-4 py-2 relative bg-rose-50/30 rounded-r-2xl pr-3"
+                          className="border-l-3 border-[#FF69B4] pl-4 py-2 relative bg-rose-50/30 rounded-r-2xl pr-3"
                         >
-                          <div className="absolute w-3.5 h-3.5 bg-gradient-to-r from-[#FF6F61] to-[#FF8E72] rounded-full -left-[8px] top-3 shadow-xs border-2 border-white" />
+                          <div className="absolute w-3.5 h-3.5 bg-gradient-to-r from-[#FF69B4] to-[#DDA0DD] rounded-full -left-[8px] top-3 shadow-xs border-2 border-white" />
                           <div className="flex justify-between items-center text-[11px] text-gray-400 font-semibold mb-1">
                             <span>{new Date(item.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</span>
                             {item.category && (
@@ -818,7 +890,7 @@ export default function PatientDashboard({ token }) {
                             key={i}
                             onClick={() => bookSlot(slot)}
                             disabled={selectedSlot === slot}
-                            className="p-3 bg-white border border-rose-200 hover:border-[#FF6F61] hover:bg-rose-50 rounded-xl text-center transition-all duration-200 group cursor-pointer shadow-2xs hover:scale-102"
+                            className="p-3 bg-white border border-rose-200 hover:border-[#FF69B4] hover:bg-rose-50 rounded-xl text-center transition-all duration-200 group cursor-pointer shadow-2xs hover:scale-102"
                           >
                             <span className="text-xs font-bold text-gray-800 group-hover:text-rose-700 block">
                               {slot}
@@ -896,6 +968,11 @@ export default function PatientDashboard({ token }) {
                 <BabyDevelopment dueDate={details.due_date} />
               </div>
 
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <HospitalBagChecklist />
+                <BabyNameIdeas />
+              </div>
+
               <BirthPlanNotes token={token} />
             </motion.div>
           )}
@@ -912,19 +989,19 @@ export default function PatientDashboard({ token }) {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex flex-col items-center justify-center w-[4.5rem] py-1 gap-1 relative ${
-                isActive ? 'text-[#FF6F61]' : 'text-gray-400 hover:text-gray-600'
+                isActive ? 'text-[#FF69B4]' : 'text-gray-400 hover:text-gray-600'
               }`}
             >
               <div className={`p-1.5 rounded-2xl transition-all duration-300 ${isActive ? 'bg-rose-50 scale-110' : ''}`}>
-                <Icon className={`w-5 h-5 ${isActive ? 'text-[#FF6F61]' : 'text-gray-400'}`} strokeWidth={isActive ? 2.5 : 2} />
+                <Icon className={`w-5 h-5 ${isActive ? 'text-[#FF69B4]' : 'text-gray-400'}`} strokeWidth={isActive ? 2.5 : 2} />
               </div>
-              <span className={`text-[10px] transition-colors ${isActive ? 'text-[#FF6F61] font-bold' : 'font-medium text-gray-500'}`}>
+              <span className={`text-[10px] transition-colors ${isActive ? 'text-[#FF69B4] font-bold' : 'font-medium text-gray-500'}`}>
                 {tab.mobileLabel}
               </span>
               {isActive && (
                 <motion.div 
                   layoutId="bottom-nav-indicator"
-                  className="absolute -top-2 w-8 h-1.5 bg-gradient-to-r from-[#FF6F61] to-[#FF8E72] rounded-b-full shadow-[0_2px_8px_rgba(255,111,97,0.4)]" 
+                  className="absolute -top-2 w-8 h-1.5 bg-gradient-to-r from-[#FF69B4] to-[#DDA0DD] rounded-b-full shadow-[0_2px_8px_rgba(255,111,97,0.4)]" 
                 />
               )}
             </button>

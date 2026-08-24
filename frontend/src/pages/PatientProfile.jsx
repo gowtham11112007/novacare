@@ -38,7 +38,7 @@ export default function PatientProfile({ token }) {
   const fetchPatientDetails = async () => {
     try {
       setLoading(true);
-      const res = await fetch('https://novacare-sccg.onrender.com/api/patient/details', {
+      const res = await fetch('http://localhost:5001/api/patient/details', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -94,7 +94,7 @@ export default function PatientProfile({ token }) {
 
     try {
       setSaving(true);
-      const res = await fetch('https://novacare-sccg.onrender.com/api/patient/onboarding', {
+      const res = await fetch('http://localhost:5001/api/patient/onboarding', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -152,7 +152,7 @@ export default function PatientProfile({ token }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FFF9F8] flex flex-col items-center justify-center gap-3">
+      <div className="min-h-screen bg-[#FFF0F5] flex flex-col items-center justify-center gap-3">
         <div className="w-12 h-12 rounded-full border-4 border-rose-200 border-t-rose-500 animate-spin" />
         <p className="font-heading font-bold text-gray-700 text-base">Loading your profile...</p>
       </div>
@@ -160,7 +160,7 @@ export default function PatientProfile({ token }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#FFF9F8] text-[#2D2638] font-sans selection:bg-rose-100 selection:text-rose-900 pb-16">
+    <div className="min-h-screen bg-[#FFF0F5] text-[#2D2638] font-sans selection:bg-rose-100 selection:text-rose-900 pb-16">
       {/* Top Navigation */}
       <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-rose-100/80 px-4 md:px-8 py-3.5 shadow-xs">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
@@ -173,7 +173,7 @@ export default function PatientProfile({ token }) {
           </button>
 
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FF6F61] to-[#FF8E72] flex items-center justify-center text-white shadow-xs">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FF69B4] to-[#DDA0DD] flex items-center justify-center text-white shadow-xs">
               <Sparkles className="w-4 h-4" />
             </div>
             <span className="font-heading font-bold text-gray-900 text-sm md:text-base tracking-tight">
@@ -193,7 +193,7 @@ export default function PatientProfile({ token }) {
           className="card-warm p-6 bg-white/90 border border-rose-100 shadow-[0_8px_30px_rgb(255,110,127,0.06)] rounded-3xl"
         >
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-[#FF6F61] to-[#FF8E72] flex items-center justify-center text-white shadow-md shadow-rose-500/20 shrink-0">
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-[#FF69B4] to-[#DDA0DD] flex items-center justify-center text-white shadow-md shadow-rose-500/20 shrink-0">
               <User className="w-10 h-10" />
             </div>
 
@@ -290,7 +290,7 @@ export default function PatientProfile({ token }) {
             <div className="p-4 bg-gradient-to-r from-rose-50/60 to-orange-50/60 border border-rose-200/70 rounded-2xl space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                  <Stethoscope className="w-4 h-4 text-[#FF6F61]" />
+                  <Stethoscope className="w-4 h-4 text-[#FF69B4]" />
                   <span>Assigned Care Provider</span>
                 </div>
                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-white text-gray-500 border border-rose-200/60">
@@ -315,7 +315,7 @@ export default function PatientProfile({ token }) {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#FF6F61] to-[#FF8E72] hover:opacity-95 text-white font-bold text-sm rounded-2xl shadow-md shadow-rose-500/20 transition disabled:opacity-50 cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#FF69B4] to-[#DDA0DD] hover:opacity-95 text-white font-bold text-sm rounded-2xl shadow-md shadow-rose-500/20 transition disabled:opacity-50 cursor-pointer"
               >
                 {saving ? (
                   <>

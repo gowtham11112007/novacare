@@ -20,7 +20,7 @@ export default function WeekProgress({ dueDate }) {
       <div className="relative z-10">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FF6F61] to-[#FF8E72] flex items-center justify-center text-2xl shadow-md shadow-rose-500/20">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FF69B4] to-[#DDA0DD] flex items-center justify-center text-2xl shadow-md shadow-rose-500/20">
               {weekData.emoji}
             </div>
             <div>
@@ -28,7 +28,7 @@ export default function WeekProgress({ dueDate }) {
                 <h2 className="text-xl md:text-2xl font-bold font-heading text-gray-800">
                   Week {week} of 40
                 </h2>
-                <span className="bg-[#FF6F61] text-white text-xs font-bold px-2.5 py-0.5 rounded-full shadow-sm">
+                <span className="bg-[#FF69B4] text-white text-xs font-bold px-2.5 py-0.5 rounded-full shadow-sm">
                   Trimester {trimester}
                 </span>
               </div>
@@ -47,7 +47,7 @@ export default function WeekProgress({ dueDate }) {
               </span>
             </div>
 
-            <div className="bg-gradient-to-br from-[#FF6F61] to-[#FF8E72] text-white rounded-2xl px-4 py-2 text-center shadow-md shadow-rose-500/20">
+            <div className="bg-gradient-to-br from-[#FF69B4] to-[#DDA0DD] text-white rounded-2xl px-4 py-2 text-center shadow-md shadow-rose-500/20">
               <span className="text-[10px] uppercase font-bold text-rose-100 block tracking-wider">Countdown</span>
               <span className="text-sm font-bold flex items-center justify-center gap-1">
                 <Sparkles className="w-3.5 h-3.5 text-yellow-200" />
@@ -71,7 +71,7 @@ export default function WeekProgress({ dueDate }) {
             <div className="absolute top-0 bottom-0 left-[67.5%] w-[1px] bg-rose-200 z-10" />
 
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[#FF6F61] via-[#FF8E72] to-[#FF6584] shadow-sm transition-all duration-700 ease-out relative"
+              className="h-full rounded-full bg-gradient-to-r from-[#FF69B4] via-[#DDA0DD] to-[#FF6584] shadow-sm transition-all duration-700 ease-out relative"
               style={{ width: `${Math.max(5, percent)}%` }}
             >
               <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-md flex items-center justify-center mr-0.5">

@@ -17,7 +17,7 @@ export default function VitalsLog({ token }) {
 
   const fetchVitals = async () => {
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/vitals-history", {
+      const res = await fetch("http://localhost:5001/api/patient/vitals-history", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -32,7 +32,7 @@ export default function VitalsLog({ token }) {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/vitals", {
+      const res = await fetch("http://localhost:5001/api/patient/vitals", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -112,7 +112,7 @@ export default function VitalsLog({ token }) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-2.5 bg-[#FF6F61] text-white rounded-xl text-xs font-bold hover:bg-rose-600 transition shadow-sm"
+            className="w-full py-2.5 bg-[#FF69B4] text-white rounded-xl text-xs font-bold hover:bg-rose-600 transition shadow-sm"
           >
             {isSubmitting ? "Saving..." : "Save Vitals"}
           </button>
@@ -132,7 +132,7 @@ export default function VitalsLog({ token }) {
                   fontSize: "12px"
                 }}
               />
-              <Line type="monotone" dataKey="weight" name="Weight (kg)" stroke="#FF6F61" strokeWidth={2.5} dot={{ r: 4 }} />
+              <Line type="monotone" dataKey="weight" name="Weight (kg)" stroke="#FF69B4" strokeWidth={2.5} dot={{ r: 4 }} />
               <Line type="monotone" dataKey="systolic" name="BP Systolic" stroke="#9333ea" strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
           </ResponsiveContainer>

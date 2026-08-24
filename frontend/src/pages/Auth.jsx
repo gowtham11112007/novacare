@@ -26,7 +26,7 @@ export default function Auth() {
       } else {
         let keyId = null;
         if (role !== 'patient') {
-          const verifyRes = await fetch('https://novacare-sccg.onrender.com/api/auth/verify-passkey', {
+          const verifyRes = await fetch('http://localhost:5001/api/auth/verify-passkey', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ passkey, role })
@@ -40,7 +40,7 @@ export default function Auth() {
         }
 
         // Bypass Supabase frontend signup completely to avoid email rate limits
-        const completeRes = await fetch('https://novacare-sccg.onrender.com/api/auth/complete-signup', {
+        const completeRes = await fetch('http://localhost:5001/api/auth/complete-signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -90,9 +90,17 @@ export default function Auth() {
         <div className="absolute inset-0 bg-gradient-to-t from-pink-900/20 to-transparent" />
       </div>
 
+      
+      {/* Girly Floating Elements */}
+      <div className="floating-butterfly" style={{ top: '20%', left: '10%', animationDelay: '0s' }}></div>
+      <div className="floating-flower" style={{ top: '40%', left: '80%', animationDelay: '2s' }}></div>
+      <div className="floating-butterfly" style={{ top: '70%', left: '30%', animationDelay: '5s' }}></div>
+      <div className="floating-flower" style={{ top: '80%', left: '70%', animationDelay: '7s' }}></div>
+      <div className="floating-butterfly" style={{ top: '30%', left: '60%', animationDelay: '4s' }}></div>
+
       {/* Right Panel - Auth Form */}
       <div 
-        className="w-full lg:w-1/2 xl:w-[45%] flex items-center justify-center bg-[#FFF9F8] p-4 sm:p-8 relative"
+        className="w-full lg:w-1/2 xl:w-[45%] flex items-center justify-center bg-[#FFF0F5] p-4 sm:p-8 relative"
         style={{
           backgroundImage: `url(${authBg})`,
           backgroundSize: 'cover',
@@ -100,14 +108,14 @@ export default function Auth() {
         }}
       >
         {/* Mobile background overlay for readability */}
-        <div className="absolute inset-0 bg-[#FFF9F8]/90 lg:bg-[#FFF9F8] backdrop-blur-sm lg:backdrop-blur-none" />
+        <div className="absolute inset-0 bg-[#FFF0F5]/90 lg:bg-[#FFF0F5] backdrop-blur-sm lg:backdrop-blur-none" />
 
         <div className="max-w-md w-full bg-white/95 backdrop-blur-md rounded-[32px] shadow-[0_8px_40px_rgba(255,111,97,0.08)] border border-rose-100/50 p-8 sm:p-10 relative z-10">
         
           <div className="flex flex-col items-center justify-center mb-10">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#FF6F61] via-[#FF8E72] to-[#FFA07A] p-0.5 shadow-md shadow-rose-500/20 mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#FF69B4] via-[#DDA0DD] to-[#E6E6FA] p-0.5 shadow-md shadow-rose-500/20 mb-4">
               <div className="w-full h-full bg-white rounded-[14px] flex items-center justify-center text-3xl">
-                🤰
+                🦋🌸
               </div>
             </div>
             <h2 className="text-3xl font-bold font-heading text-gray-900">NovaCare</h2>
@@ -123,7 +131,7 @@ export default function Auth() {
                 <select 
                   value={role} 
                   onChange={(e) => setRole(e.target.value)}
-                  className="block w-full rounded-2xl border-gray-200 shadow-sm p-3.5 border outline-none focus:border-[#FF6F61] focus:ring-1 focus:ring-[#FF6F61] text-sm bg-gray-50/50 transition cursor-pointer"
+                  className="block w-full rounded-2xl border-gray-200 shadow-sm p-3.5 border outline-none focus:border-[#FF69B4] focus:ring-1 focus:ring-[#FF69B4] text-sm bg-gray-50/50 transition cursor-pointer"
                 >
                   <option value="patient">Expectant Mother (Patient)</option>
                   <option value="doctor">Medical Specialist (Doctor)</option>
@@ -137,7 +145,7 @@ export default function Auth() {
                   type="text" required 
                   value={name} onChange={e => setName(e.target.value)}
                   placeholder="e.g. Jane Doe"
-                  className="block w-full rounded-2xl border-gray-200 shadow-sm p-3.5 border outline-none focus:border-[#FF6F61] focus:ring-1 focus:ring-[#FF6F61] text-sm bg-gray-50/50 transition"
+                  className="block w-full rounded-2xl border-gray-200 shadow-sm p-3.5 border outline-none focus:border-[#FF69B4] focus:ring-1 focus:ring-[#FF69B4] text-sm bg-gray-50/50 transition"
                 />
               </div>
 
@@ -150,7 +158,7 @@ export default function Auth() {
                     type="password" required 
                     value={passkey} onChange={e => setPasskey(e.target.value)}
                     placeholder="Enter security passkey"
-                    className="block w-full rounded-2xl border-rose-200 shadow-sm p-3.5 border outline-none focus:border-[#FF6F61] focus:ring-1 focus:ring-[#FF6F61] text-sm bg-rose-50/30 transition"
+                    className="block w-full rounded-2xl border-rose-200 shadow-sm p-3.5 border outline-none focus:border-[#FF69B4] focus:ring-1 focus:ring-[#FF69B4] text-sm bg-rose-50/30 transition"
                   />
                   <div className="mt-2 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 shadow-sm space-y-1">
                     <p className="flex items-center gap-1.5 font-semibold">
@@ -180,7 +188,7 @@ export default function Auth() {
                     type="text" required 
                     value={specialization} onChange={e => setSpecialization(e.target.value)}
                     placeholder="e.g. OB/GYN"
-                    className="block w-full rounded-2xl border-gray-200 shadow-sm p-3.5 border outline-none focus:border-[#FF6F61] focus:ring-1 focus:ring-[#FF6F61] text-sm bg-gray-50/50 transition"
+                    className="block w-full rounded-2xl border-gray-200 shadow-sm p-3.5 border outline-none focus:border-[#FF69B4] focus:ring-1 focus:ring-[#FF69B4] text-sm bg-gray-50/50 transition"
                   />
                 </div>
               )}
@@ -193,7 +201,7 @@ export default function Auth() {
               type="email" required 
               value={email} onChange={e => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="block w-full rounded-2xl border-gray-200 shadow-sm p-3.5 border outline-none focus:border-[#FF6F61] focus:ring-1 focus:ring-[#FF6F61] text-sm bg-gray-50/50 transition"
+              className="block w-full rounded-2xl border-gray-200 shadow-sm p-3.5 border outline-none focus:border-[#FF69B4] focus:ring-1 focus:ring-[#FF69B4] text-sm bg-gray-50/50 transition"
             />
           </div>
 
@@ -203,21 +211,21 @@ export default function Auth() {
               type="password" required 
               value={password} onChange={e => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="block w-full rounded-2xl border-gray-200 shadow-sm p-3.5 border outline-none focus:border-[#FF6F61] focus:ring-1 focus:ring-[#FF6F61] text-sm bg-gray-50/50 transition"
+              className="block w-full rounded-2xl border-gray-200 shadow-sm p-3.5 border outline-none focus:border-[#FF69B4] focus:ring-1 focus:ring-[#FF69B4] text-sm bg-gray-50/50 transition"
             />
           </div>
 
           <button 
             type="submit" 
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-[#FF6F61] to-[#FF8E72] shadow-[0_4px_14px_rgba(255,111,97,0.3)] hover:shadow-[0_6px_20px_rgba(255,111,97,0.4)] text-white font-bold py-3.5 px-4 rounded-2xl transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+            className="w-full bg-gradient-to-r from-[#FF69B4] to-[#DDA0DD] shadow-[0_4px_14px_rgba(255,111,97,0.3)] hover:shadow-[0_6px_20px_rgba(255,111,97,0.4)] text-white font-bold py-3.5 px-4 rounded-2xl transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
           >
             {isLoading ? 'Processing...' : (isLogin ? 'Sign In Securely' : 'Create Account')}
           </button>
         </form>
 
         <div className="mt-8 text-center border-t border-gray-100 pt-6">
-          <button onClick={() => setIsLogin(!isLogin)} className="text-sm font-semibold text-gray-500 hover:text-[#FF6F61] transition">
+          <button onClick={() => setIsLogin(!isLogin)} className="text-sm font-semibold text-gray-500 hover:text-[#FF69B4] transition">
             {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
           </button>
         </div>

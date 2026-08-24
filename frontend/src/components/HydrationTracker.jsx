@@ -4,9 +4,15 @@ import { Droplet, Check, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function HydrationTracker({ token }) {
-  const [glasses, setGlasses] = useState(0);
-  const [ironTaken, setIronTaken] = useState(false);
-  const [folicAcidTaken, setFolicAcidTaken] = useState(false);
+  const [glasses, setGlasses] = useState(() => parseInt(localStorage.getItem('hydrationGlasses') || '0'));
+  const [ironTaken, setIronTaken] = useState(() => localStorage.getItem('hydrationIron') === 'true');
+  const [folicAcidTaken, setFolicAcidTaken] = useState(() => localStorage.getItem('hydrationFolic') === 'true');
+
+  useEffect(() => {
+    localStorage.setItem('hydrationGlasses', glasses);
+    localStorage.setItem('hydrationIron', ironTaken);
+    localStorage.setItem('hydrationFolic', folicAcidTaken);
+  }, [glasses, ironTaken, folicAcidTaken]);
 
   useEffect(() => {
     fetchWaterLog();
@@ -14,7 +20,7 @@ export default function HydrationTracker({ token }) {
 
   const fetchWaterLog = async () => {
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/water-log", {
+      const res = await fetch("http://localhost:5001/api/patient/water-log", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -30,7 +36,7 @@ export default function HydrationTracker({ token }) {
 
   const updateServer = async (newGlasses, newIron, newFolic) => {
     try {
-      await fetch("https://novacare-sccg.onrender.com/api/patient/water-log", {
+      await fetch("http://localhost:5001/api/patient/water-log", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

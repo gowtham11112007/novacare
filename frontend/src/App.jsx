@@ -36,7 +36,7 @@ function App() {
 
   const fetchRole = async (token) => {
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/users/me', {
+      const res = await fetch('http://localhost:5001/api/users/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -65,7 +65,7 @@ function App() {
           role === 'admin' ? <Navigate to="/admin" /> :
           role === 'doctor' ? <Navigate to="/doctor" /> :
           role === 'patient' ? <Navigate to="/patient" /> :
-          <div className="flex flex-col h-screen items-center justify-center gap-4 bg-[#FFF9F8]">
+          <div className="flex flex-col h-screen items-center justify-center gap-4 bg-[#FFF0F5]">
             <div className="w-8 h-8 rounded-full border-4 border-rose-200 border-t-rose-500 animate-spin" />
             <p className="text-gray-600 font-medium text-sm">Verifying role or connecting to backend...</p>
             <button 

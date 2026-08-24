@@ -85,7 +85,7 @@ export default function SymptomChips({
             </div>
             <div
               className={`w-6 h-6 rounded-full flex items-center justify-center transition ${
-                item.active ? "bg-[#FF6F61] text-white" : "border border-gray-300"
+                item.active ? "bg-[#FF69B4] text-white" : "border border-gray-300"
               }`}
             >
               {item.active && <Check className="w-3.5 h-3.5 stroke-[3]" />}
@@ -98,7 +98,7 @@ export default function SymptomChips({
         <button
           onClick={() => onSubmit(false)}
           disabled={loading}
-          className="w-full bg-gradient-to-r from-[#FF6F61] to-[#FF8E72] text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg shadow-rose-500/25 hover:opacity-95 active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          className="w-full bg-gradient-to-r from-[#FF69B4] to-[#DDA0DD] text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg shadow-rose-500/25 hover:opacity-95 active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
         >
           {loading ? (
             <>

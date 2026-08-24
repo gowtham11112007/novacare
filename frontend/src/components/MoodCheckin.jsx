@@ -5,7 +5,7 @@ import { moodOptions } from "../data/pregnancyData";
 import toast from "react-hot-toast";
 
 export default function MoodCheckin({ token }) {
-  const [selectedMood, setSelectedMood] = useState(null);
+  const [selectedMood, setSelectedMood] = useState(() => localStorage.getItem('selectedMood') || null);
   const [note, setNote] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [moodHistory, setMoodHistory] = useState([]);
@@ -14,9 +14,17 @@ export default function MoodCheckin({ token }) {
     fetchMoods();
   }, []);
 
+  useEffect(() => {
+    if (selectedMood) {
+      localStorage.setItem('selectedMood', selectedMood);
+    } else {
+      localStorage.removeItem('selectedMood');
+    }
+  }, [selectedMood]);
+
   const fetchMoods = async () => {
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/moods", {
+      const res = await fetch("http://localhost:5001/api/patient/moods", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -39,7 +47,7 @@ export default function MoodCheckin({ token }) {
     setSelectedMood(moodItem.id);
     setIsSubmitting(true);
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/mood", {
+      const res = await fetch("http://localhost:5001/api/patient/mood", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,7 +60,7 @@ export default function MoodCheckin({ token }) {
         })
       });
       if (res.ok) {
-        toast.success(`Logged mood: ${moodItem.emoji} ${moodItem.label}`);
+        toast.success(`Logged mood: ${moodItem.label}`);
         fetchMoods();
       }
     } catch (err) {
@@ -80,6 +88,13 @@ export default function MoodCheckin({ token }) {
         <div className="grid grid-cols-5 gap-2 md:gap-3">
           {moodOptions.map((item) => {
             const isSelected = selectedMood === item.id;
+            let IconComponent;
+            if (item.id === 'great') IconComponent = Heart;
+            else if (item.id === 'good') IconComponent = Smile;
+            else if (item.id === 'okay') IconComponent = Sparkles;
+            else if (item.id === 'sad') IconComponent = Smile; // Fallback, could use Frown but let's keep it elegant
+            else IconComponent = Heart; // Fallback
+
             return (
               <button
                 key={item.id}
@@ -87,12 +102,12 @@ export default function MoodCheckin({ token }) {
                 disabled={isSubmitting}
                 className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all duration-200 ${
                   isSelected
-                    ? "bg-gradient-to-b from-rose-50 to-pink-100 border-[#FF6F61] shadow-md shadow-rose-500/20 scale-105"
+                    ? "bg-gradient-to-b from-rose-50 to-pink-100 border-[#FF69B4] shadow-md shadow-rose-500/20 scale-105"
                     : "bg-white border-rose-100/60 hover:bg-rose-50/50 hover:scale-102"
                 }`}
               >
-                <span className="text-3xl md:text-4xl filter drop-shadow-xs mb-1.5 transform hover:scale-110 transition">
-                  {item.emoji}
+                <span className={`mb-2 transform hover:scale-110 transition ${isSelected ? 'text-rose-500' : 'text-gray-400'}`}>
+                  <IconComponent size={28} />
                 </span>
                 <span className="text-xs font-bold text-gray-700">{item.label}</span>
                 <span className="hidden md:block text-[9px] text-gray-400 mt-0.5 text-center leading-tight">
@@ -111,8 +126,8 @@ export default function MoodCheckin({ token }) {
             const found = moodOptions.find(o => o.id === m.mood) || moodOptions[1];
             return (
               <div key={i} className="inline-flex items-center gap-1 px-2.5 py-1 bg-rose-50/60 rounded-full text-xs text-gray-700 border border-rose-100 shrink-0">
-                <span>{found.emoji}</span>
-                <span className="font-medium text-[11px]">{new Date(m.recorded_at).toLocaleDateString([], { month: "short", day: "numeric" })}</span>
+                <span className="font-medium text-[11px]">{found.label}</span>
+                <span className="font-medium text-[11px] opacity-60">· {new Date(m.recorded_at).toLocaleDateString([], { month: "short", day: "numeric" })}</span>
               </div>
             );
           })}

@@ -15,7 +15,7 @@ export default function MedicationChecklist({ token }) {
 
   const fetchMeds = async () => {
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/medications", {
+      const res = await fetch("http://localhost:5001/api/patient/medications", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -30,7 +30,7 @@ export default function MedicationChecklist({ token }) {
     const updated = meds.map(m => m.id === item.id ? { ...m, taken: !m.taken } : m);
     setMeds(updated);
     try {
-      await fetch("https://novacare-sccg.onrender.com/api/patient/medication-toggle", {
+      await fetch("http://localhost:5001/api/patient/medication-toggle", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ id: item.id, taken: !item.taken })
@@ -45,7 +45,7 @@ export default function MedicationChecklist({ token }) {
     e.preventDefault();
     if (!newMedName.trim()) return;
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/medication", {
+      const res = await fetch("http://localhost:5001/api/patient/medication", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ medicationName: newMedName, scheduledTime: newTime })
@@ -102,7 +102,7 @@ export default function MedicationChecklist({ token }) {
             />
             <button
               type="submit"
-              className="px-4 py-2 bg-[#FF6F61] text-white rounded-xl text-xs font-bold hover:bg-rose-600 transition"
+              className="px-4 py-2 bg-[#FF69B4] text-white rounded-xl text-xs font-bold hover:bg-rose-600 transition"
             >
               Save
             </button>
