@@ -154,7 +154,7 @@ export default function DoctorDashboard({ token }) {
 
   const displayList = (searchQuery ? searchResults : patients).filter(p => showFlaggedOnly ? p.risk_score > 60 : true);
 
-  const moodEmoji = (mood) => ({ great: '🥰', good: '😊', okay: '😐', sad: '🥺', anxious: '😰', Happy: '😊', Sad: '😔', Anxious: '😟' }[mood] || '😊');
+  const moodEmoji = (mood) => ({ great: '', good: '😊', okay: '', sad: '🥺', anxious: '😰', Happy: '😊', Sad: '😔', Anxious: '😟' }[mood] || '😊');
 
   const categoryStyle = (cat) => ({
     Emergency: 'bg-red-50 text-red-600 border-red-100',
@@ -504,7 +504,7 @@ export default function DoctorDashboard({ token }) {
                       </LineChart>
                     </ResponsiveContainer>
                     <div className="flex justify-between text-[10px] text-gray-400 mt-2 px-1">
-                      <span>😰 Overwhelmed</span><span>😐 Neutral</span><span>🥰 Radiant</span>
+                      <span>😰 Overwhelmed</span><span> Neutral</span><span> Radiant</span>
                     </div>
                   </>
                 )}

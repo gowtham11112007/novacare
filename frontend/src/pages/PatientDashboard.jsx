@@ -313,7 +313,7 @@ export default function PatientDashboard({ token }) {
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#FF69B4] via-[#DDA0DD] to-[#E6E6FA] p-0.5 shadow-md shadow-rose-500/20">
               <div className="w-full h-full bg-white rounded-[14px] flex items-center justify-center text-xl">
-                🦋🌸
+                
               </div>
             </div>
             <div>
@@ -420,7 +420,7 @@ export default function PatientDashboard({ token }) {
                     return (
                       <div className="mt-3 bg-rose-50 border border-rose-100 rounded-xl p-3 text-xs text-gray-700 space-y-1">
                         <p>📅 <strong>Estimated Due Date:</strong> {edd.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                        <p>🦋🌸 <strong>Currently:</strong> {wks} weeks {days} days pregnant</p>
+                        <p> <strong>Currently:</strong> {wks} weeks {days} days pregnant</p>
                         <p>📊 <strong>Trimester:</strong> {wks < 13 ? '1st (Weeks 1–13)' : wks < 27 ? '2nd (Weeks 14–27)' : '3rd (Weeks 28–40)'}</p>
                       </div>
                     );
@@ -454,14 +454,14 @@ export default function PatientDashboard({ token }) {
           
           <div className="relative z-10">
             <h2 className="text-3xl md:text-4xl font-bold font-heading text-gray-900 tracking-tight">
-              {new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 18 ? 'Good afternoon' : 'Good evening'}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF69B4] to-[#DDA0DD]">{details.users?.name || 'Mom'}</span>! 🌸
+              {new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 18 ? 'Good afternoon' : 'Good evening'}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF69B4] to-[#DDA0DD]">{details.users?.name || 'Mom'}</span>!
             </h2>
             <p className="text-sm font-bold text-gray-400 mt-2 tracking-widest uppercase">Here's your health overview for today</p>
           </div>
 
           <div className="grid grid-cols-3 gap-3 md:gap-6 mt-8 relative z-10">
             <div className="bg-white/70 backdrop-blur-xl p-5 rounded-[24px] flex flex-col items-center justify-center text-center border border-white shadow-[0_8px_30px_rgb(255,110,127,0.08)] hover:-translate-y-1 transition duration-300 group">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-100/80 to-rose-50 flex items-center justify-center text-2xl shadow-inner mb-3 group-hover:scale-110 transition-transform">🦋🌸</div>
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-100/80 to-rose-50 flex items-center justify-center text-2xl shadow-inner mb-3 group-hover:scale-110 transition-transform"></div>
               <span className="text-xl md:text-2xl font-bold font-heading text-rose-600 leading-none">{pregnancy.weeksPregnant}<span className="text-sm ml-0.5">wks</span></span>
               {pregnancy.extraDays > 0 && <span className="text-xs font-bold text-rose-400 leading-none mt-0.5">{pregnancy.extraDays} days</span>}
               <span className="text-[10px] md:text-xs uppercase tracking-wider font-bold text-gray-400 mt-2">Pregnant</span>
@@ -474,7 +474,7 @@ export default function PatientDashboard({ token }) {
             </div>
             
             <div className="bg-white/70 backdrop-blur-xl p-5 rounded-[24px] flex flex-col items-center justify-center text-center border border-white shadow-[0_8px_30px_rgb(255,110,127,0.08)] hover:-translate-y-1 transition duration-300 group">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner mb-3 group-hover:scale-110 transition-transform ${details.doctors?.users?.name ? 'bg-gradient-to-tr from-sky-100/80 to-sky-50' : 'bg-gradient-to-tr from-amber-100/80 to-amber-50'}`}>👩‍⚕️</div>
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner mb-3 group-hover:scale-110 transition-transform ${details.doctors?.users?.name ? 'bg-gradient-to-tr from-sky-100/80 to-sky-50' : 'bg-gradient-to-tr from-amber-100/80 to-amber-50'}`}></div>
               <span className="text-base md:text-xl font-bold font-heading text-gray-800 leading-none line-clamp-1">
                 {details.doctors?.users?.name ? `Dr. ${details.doctors.users.name.split(' ')[0]}` : '—'}
               </span>
@@ -616,7 +616,7 @@ export default function PatientDashboard({ token }) {
                       className="p-4 rounded-3xl bg-white border border-emerald-100 cursor-pointer transition shadow-sm hover:shadow-md flex flex-col items-center gap-2 group text-center"
                     >
                       <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center text-4xl shadow-inner group-hover:scale-110 transition">
-                        🌸
+                        
                       </div>
                       <span className="text-[11px] font-bold font-heading text-emerald-600 block mt-1">Grabh Sanskar</span>
                     </div>
@@ -776,7 +776,7 @@ export default function PatientDashboard({ token }) {
                   <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                       <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-100 to-sky-50 flex items-center justify-center text-3xl shadow-inner border border-white">
-                        👩‍⚕️
+                        
                       </div>
                       <div>
                         <h3 className="font-heading font-bold text-xl text-gray-800">

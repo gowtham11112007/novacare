@@ -115,7 +115,7 @@ export default function Auth() {
           <div className="flex flex-col items-center justify-center mb-10">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#FF69B4] via-[#DDA0DD] to-[#E6E6FA] p-0.5 shadow-md shadow-rose-500/20 mb-4">
               <div className="w-full h-full bg-white rounded-[14px] flex items-center justify-center text-3xl">
-                🦋🌸
+                
               </div>
             </div>
             <h2 className="text-3xl font-bold font-heading text-gray-900">NovaCare</h2>
