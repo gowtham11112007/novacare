@@ -20,7 +20,7 @@ export default function HydrationTracker({ token }) {
 
   const fetchWaterLog = async () => {
     try {
-      const res = await fetch("http://localhost:5001/api/patient/water-log", {
+      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/water-log", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -36,7 +36,7 @@ export default function HydrationTracker({ token }) {
 
   const updateServer = async (newGlasses, newIron, newFolic) => {
     try {
-      await fetch("http://localhost:5001/api/patient/water-log", {
+      await fetch("https://novacare-sccg.onrender.com/api/patient/water-log", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

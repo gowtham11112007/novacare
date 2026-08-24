@@ -30,7 +30,7 @@ export default function KickCounter({ token }) {
 
   const fetchKickLogs = async () => {
     try {
-      const res = await fetch("http://localhost:5001/api/patient/kick-logs", {
+      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/kick-logs", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -75,7 +75,7 @@ export default function KickCounter({ token }) {
   const saveSession = async (count, durationMins, target) => {
     setIsSaving(true);
     try {
-      const res = await fetch("http://localhost:5001/api/patient/kick-log", {
+      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/kick-log", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

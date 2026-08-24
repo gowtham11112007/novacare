@@ -26,7 +26,7 @@ export default function Auth() {
       } else {
         let keyId = null;
         if (role !== 'patient') {
-          const verifyRes = await fetch('http://localhost:5001/api/auth/verify-passkey', {
+          const verifyRes = await fetch('https://novacare-sccg.onrender.com/api/auth/verify-passkey', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ passkey, role })
@@ -40,7 +40,7 @@ export default function Auth() {
         }
 
         // Bypass Supabase frontend signup completely to avoid email rate limits
-        const completeRes = await fetch('http://localhost:5001/api/auth/complete-signup', {
+        const completeRes = await fetch('https://novacare-sccg.onrender.com/api/auth/complete-signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

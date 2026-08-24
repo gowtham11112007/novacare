@@ -5,7 +5,7 @@ import { Users, Stethoscope, Key, LogOut, Copy, Check, Plus, UserCheck, AlertTri
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const BASE = 'http://localhost:5001';
+const BASE = 'https://novacare-sccg.onrender.com';
 
 export default function AdminDashboard({ token }) {
   const [activeTab, setActiveTab] = useState('overview');

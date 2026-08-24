@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import RiskGauge from '../components/RiskGauge';
 import BabyDevelopment from '../components/BabyDevelopment';
 
-const BASE = 'http://localhost:5001';
+const BASE = 'https://novacare-sccg.onrender.com';
 
 export default function DoctorDashboard({ token }) {
   const [patients, setPatients] = useState([]);

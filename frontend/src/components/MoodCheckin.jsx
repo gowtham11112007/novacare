@@ -24,7 +24,7 @@ export default function MoodCheckin({ token }) {
 
   const fetchMoods = async () => {
     try {
-      const res = await fetch("http://localhost:5001/api/patient/moods", {
+      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/moods", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -47,7 +47,7 @@ export default function MoodCheckin({ token }) {
     setSelectedMood(moodItem.id);
     setIsSubmitting(true);
     try {
-      const res = await fetch("http://localhost:5001/api/patient/mood", {
+      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/mood", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
