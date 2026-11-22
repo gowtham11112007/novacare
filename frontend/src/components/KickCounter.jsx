@@ -1,3 +1,4 @@
+import { API_URL } from '../lib/api';
 
 import React, { useState, useEffect } from "react";
 import { Play, Pause, RotateCcw, CheckCircle2, Footprints, History, Sparkles } from "lucide-react";
@@ -30,7 +31,7 @@ export default function KickCounter({ token }) {
 
   const fetchKickLogs = async () => {
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/kick-logs", {
+      const res = await fetch(`${API_URL}/api/patient/kick-logs`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -66,7 +67,7 @@ export default function KickCounter({ token }) {
     if (newCount === 10) {
       setIsActive(false);
       const currentSeconds = Math.floor((Date.now() - kickStartTime) / 1000);
-      toast.success("🎉 Reached 10 kicks! Great job monitoring your baby.", { duration: 4000 });
+      toast.success("Reached 10 kicks! Great job monitoring your baby.", { duration: 4000 });
       saveSession(10, Math.ceil(currentSeconds / 60) || 1, true);
       setKickStartTime(null);
     }
@@ -75,7 +76,7 @@ export default function KickCounter({ token }) {
   const saveSession = async (count, durationMins, target) => {
     setIsSaving(true);
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/kick-log", {
+      const res = await fetch(`${API_URL}/api/patient/kick-log`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

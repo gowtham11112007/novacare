@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Heart, Sparkles, Info, Ruler, Weight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, Sparkles, Info, Ruler, Weight, ChevronLeft, ChevronRight, Baby } from "lucide-react";
 import { getWeekData, calculatePregnancyWeek } from "../data/pregnancyData";
 
 export default function BabyDevelopment({ dueDate }) {
@@ -48,7 +48,7 @@ export default function BabyDevelopment({ dueDate }) {
         {/* Left: Cute Illustrated Badge */}
         <div className="bg-gradient-to-br from-rose-50 to-pink-100/70 rounded-2xl p-5 flex flex-col items-center justify-center text-center border border-rose-100 relative overflow-hidden">
           <span className="text-5xl md:text-6xl filter drop-shadow-md mb-2 transform hover:scale-110 transition duration-300">
-            {weekData.emoji}
+            <Baby className="w-14 h-14 text-rose-400" strokeWidth={1.5} />
           </span>
           <span className="text-xs uppercase font-bold text-rose-400 tracking-wider">Size of a</span>
           <span className="text-base font-bold text-gray-800 mt-0.5">{weekData.size}</span>

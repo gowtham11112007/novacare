@@ -1,6 +1,7 @@
+import { API_URL } from '../lib/api';
 
 import React, { useState, useEffect } from "react";
-import { Droplet, Check, Sparkles } from "lucide-react";
+import { Droplet, Check, Sparkles, Pill } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function HydrationTracker({ token }) {
@@ -20,7 +21,7 @@ export default function HydrationTracker({ token }) {
 
   const fetchWaterLog = async () => {
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/water-log", {
+      const res = await fetch(`${API_URL}/api/patient/water-log`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -36,7 +37,7 @@ export default function HydrationTracker({ token }) {
 
   const updateServer = async (newGlasses, newIron, newFolic) => {
     try {
-      await fetch("https://novacare-sccg.onrender.com/api/patient/water-log", {
+      await fetch(`${API_URL}/api/patient/water-log`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,7 +59,7 @@ export default function HydrationTracker({ token }) {
     setGlasses(newCount);
     updateServer(newCount, ironTaken, folicAcidTaken);
     if (newCount === 8) {
-      toast.success("💧 8 Glasses goal reached! Hydration protects amniotic fluid balance.");
+      toast.success("8 Glasses goal reached! Hydration protects amniotic fluid balance.");
     }
   };
 
@@ -131,7 +132,7 @@ export default function HydrationTracker({ token }) {
             <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold ${
               folicAcidTaken ? "bg-rose-500 text-white" : "bg-gray-200 text-gray-400"
             }`}>
-              {folicAcidTaken ? <Check className="w-4 h-4" /> : "💊"}
+              {folicAcidTaken ? <Check className="w-4 h-4" /> : <Pill className="w-3.5 h-3.5" />}
             </div>
             <div className="text-left">
               <span className="text-xs font-bold block">Folic Acid (400 mcg)</span>
@@ -153,7 +154,7 @@ export default function HydrationTracker({ token }) {
             <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold ${
               ironTaken ? "bg-rose-500 text-white" : "bg-gray-200 text-gray-400"
             }`}>
-              {ironTaken ? <Check className="w-4 h-4" /> : "🩸"}
+              {ironTaken ? <Check className="w-4 h-4" /> : <Droplet className="w-3.5 h-3.5" />}
             </div>
             <div className="text-left">
               <span className="text-xs font-bold block">Iron Supplement</span>

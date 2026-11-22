@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Calendar, Sparkles, Heart } from "lucide-react";
+import { Calendar, Sparkles, Heart, Baby } from "lucide-react";
 import { calculatePregnancyWeek, getWeekData } from "../data/pregnancyData";
 
 export default function WeekProgress({ dueDate }) {
@@ -21,7 +21,7 @@ export default function WeekProgress({ dueDate }) {
         <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FF69B4] to-[#DDA0DD] flex items-center justify-center text-2xl shadow-md shadow-rose-500/20">
-              {weekData.emoji}
+              <Baby className="w-6 h-6 text-white" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -83,7 +83,7 @@ export default function WeekProgress({ dueDate }) {
           <div className="flex justify-between text-[11px] text-gray-400 font-medium px-1 pt-0.5">
             <span>Conception</span>
             <span className="text-rose-600 font-semibold">{percent}% Complete</span>
-            <span>Arrival Day 🍼</span>
+            <span>Arrival Day</span>
           </div>
         </div>
       </div>

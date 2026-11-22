@@ -1,6 +1,7 @@
+import { API_URL } from '../lib/api';
 
 import React, { useState, useEffect } from "react";
-import { Smile, Sparkles, Heart } from "lucide-react";
+import { MoodIcon } from "./MoodIcon";
 import { moodOptions } from "../data/pregnancyData";
 import toast from "react-hot-toast";
 
@@ -24,7 +25,7 @@ export default function MoodCheckin({ token }) {
 
   const fetchMoods = async () => {
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/moods", {
+      const res = await fetch(`${API_URL}/api/patient/moods`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -47,7 +48,7 @@ export default function MoodCheckin({ token }) {
     setSelectedMood(moodItem.id);
     setIsSubmitting(true);
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/mood", {
+      const res = await fetch(`${API_URL}/api/patient/mood`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,7 +76,7 @@ export default function MoodCheckin({ token }) {
       <div className="flex items-center justify-between pb-4 border-b border-rose-50">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-pink-50 text-pink-500 flex items-center justify-center">
-            <Smile className="w-5 h-5" />
+            <MoodIcon mood="good" className="w-5 h-5" />
           </div>
           <div>
             <h3 className="font-heading font-bold text-lg text-gray-800">Maternal Wellness Check-in</h3>
@@ -88,13 +89,6 @@ export default function MoodCheckin({ token }) {
         <div className="grid grid-cols-5 gap-2 md:gap-3">
           {moodOptions.map((item) => {
             const isSelected = selectedMood === item.id;
-            let IconComponent;
-            if (item.id === 'great') IconComponent = Heart;
-            else if (item.id === 'good') IconComponent = Smile;
-            else if (item.id === 'okay') IconComponent = Sparkles;
-            else if (item.id === 'sad') IconComponent = Smile; // Fallback, could use Frown but let's keep it elegant
-            else IconComponent = Heart; // Fallback
-
             return (
               <button
                 key={item.id}
@@ -107,7 +101,7 @@ export default function MoodCheckin({ token }) {
                 }`}
               >
                 <span className={`mb-2 transform hover:scale-110 transition ${isSelected ? 'text-rose-500' : 'text-gray-400'}`}>
-                  <IconComponent size={28} />
+                  <MoodIcon mood={item.id} className="w-7 h-7" />
                 </span>
                 <span className="text-xs font-bold text-gray-700">{item.label}</span>
                 <span className="hidden md:block text-[9px] text-gray-400 mt-0.5 text-center leading-tight">

@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Activity, ShieldAlert, Loader2, Check } from "lucide-react";
+import { Activity, ShieldAlert, Loader2, Check, Heart, Droplet, Droplets, Candy } from "lucide-react";
 
 export default function SymptomChips({ 
   bloodPressureFlag, setBp,
@@ -15,7 +15,7 @@ export default function SymptomChips({
       id: "bp",
       label: "High Blood Pressure",
       sub: "Readings > 140/90 mmHg",
-      icon: "❤️",
+      icon: Heart,
       active: bloodPressureFlag,
       toggle: () => setBp(!bloodPressureFlag),
       color: "border-rose-300 bg-rose-50/80 text-rose-800"
@@ -24,7 +24,7 @@ export default function SymptomChips({
       id: "bleed",
       label: "Vaginal Bleeding",
       sub: "Spotting or fresh bleeding",
-      icon: "🩸",
+      icon: Droplet,
       active: bleedingFlag,
       toggle: () => setBleed(!bleedingFlag),
       color: "border-red-300 bg-red-50/80 text-red-800"
@@ -33,7 +33,7 @@ export default function SymptomChips({
       id: "swell",
       label: "Severe Swelling",
       sub: "Sudden face/hand edema",
-      icon: "💧",
+      icon: Droplets,
       active: swellingFlag,
       toggle: () => setSwell(!swellingFlag),
       color: "border-blue-300 bg-blue-50/80 text-blue-800"
@@ -42,7 +42,7 @@ export default function SymptomChips({
       id: "gd",
       label: "Gestational Diabetes",
       sub: "Elevated glucose symptoms",
-      icon: "🍬",
+      icon: Candy,
       active: gestationalDiabetesFlag,
       toggle: () => setGd(!gestationalDiabetesFlag),
       color: "border-amber-300 bg-amber-50/80 text-amber-800"
@@ -77,7 +77,7 @@ export default function SymptomChips({
             }`}
           >
             <div className="flex items-center gap-3">
-              <span className="text-2xl">{item.icon}</span>
+              <item.icon className="w-6 h-6 text-rose-500" />
               <div>
                 <span className="text-sm font-bold block">{item.label}</span>
                 <span className="text-[11px] text-gray-400 font-normal">{item.sub}</span>

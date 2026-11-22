@@ -101,7 +101,7 @@ export default function HospitalBagChecklist() {
                   onClick={() => toggleItem(catIndex, item.id)}
                   className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${item.checked ? 'bg-emerald-50/50 border-emerald-100' : 'bg-white border-gray-100 hover:border-emerald-200'}`}
                 >
-                  <div className={`shrink-0 text-${item.checked ? 'emerald-500' : 'gray-300'}`}>
+                  <div className={`shrink-0 ${item.checked ? 'text-emerald-500' : 'text-gray-300'}`}>
                     {item.checked ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
                   </div>
                   <span className={`text-sm ${item.checked ? 'text-gray-400 line-through' : 'text-gray-700'}`}>

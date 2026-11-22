@@ -1,3 +1,4 @@
+import { API_URL } from '../lib/api';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -38,7 +39,7 @@ export default function PatientProfile({ token }) {
   const fetchPatientDetails = async () => {
     try {
       setLoading(true);
-      const res = await fetch('https://novacare-sccg.onrender.com/api/patient/details', {
+      const res = await fetch(`${API_URL}/api/patient/details`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -94,7 +95,7 @@ export default function PatientProfile({ token }) {
 
     try {
       setSaving(true);
-      const res = await fetch('https://novacare-sccg.onrender.com/api/patient/onboarding', {
+      const res = await fetch(`${API_URL}/api/patient/onboarding`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

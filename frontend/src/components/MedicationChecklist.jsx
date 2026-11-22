@@ -1,3 +1,4 @@
+import { API_URL } from '../lib/api';
 
 import React, { useState, useEffect } from "react";
 import { Pill, Check, Plus, Clock, Trash2 } from "lucide-react";
@@ -15,7 +16,7 @@ export default function MedicationChecklist({ token }) {
 
   const fetchMeds = async () => {
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/medications", {
+      const res = await fetch(`${API_URL}/api/patient/medications`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -30,7 +31,7 @@ export default function MedicationChecklist({ token }) {
     const updated = meds.map(m => m.id === item.id ? { ...m, taken: !m.taken } : m);
     setMeds(updated);
     try {
-      await fetch("https://novacare-sccg.onrender.com/api/patient/medication-toggle", {
+      await fetch(`${API_URL}/api/patient/medication-toggle`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ id: item.id, taken: !item.taken })
@@ -45,7 +46,7 @@ export default function MedicationChecklist({ token }) {
     e.preventDefault();
     if (!newMedName.trim()) return;
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/medication", {
+      const res = await fetch(`${API_URL}/api/patient/medication`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ medicationName: newMedName, scheduledTime: newTime })

@@ -1,3 +1,4 @@
+import { API_URL } from '../lib/api';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -5,8 +6,7 @@ import toast from 'react-hot-toast';
 import { 
   Activity, Clock, ShieldAlert, Heart, Calendar, Stethoscope, 
   Sparkles, Bell, LogOut, MessageSquare, Footprints, Droplets, 
-  Pill, Smile, BookOpen, ChevronRight, CheckCircle2, User, Settings, CalendarCheck
-} from 'lucide-react';
+  Pill, Smile, BookOpen, ChevronRight, CheckCircle2, User, Settings, CalendarCheck, Baby, BarChart3, FileText, Mail, Sprout, TrendingUp } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -55,7 +55,7 @@ export default function PatientDashboard({ token }) {
   const generateReport = async () => {
     setIsGeneratingReport(true);
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/patient/generate-report', {
+      const res = await fetch(`${API_URL}/api/patient/generate-report`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -104,7 +104,7 @@ export default function PatientDashboard({ token }) {
         fetchRiskHistory();
       })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'advice_log' }, (payload) => {
-        toast.success('🩺 New medical guidance posted by your doctor!', { duration: 5000 });
+        toast.success('New medical guidance posted by your doctor!', { duration: 5000 });
         fetchTimeline();
       })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'appointments' }, () => {
@@ -119,7 +119,7 @@ export default function PatientDashboard({ token }) {
 
   const fetchDetails = async () => {
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/patient/details', {
+      const res = await fetch(`${API_URL}/api/patient/details`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -136,7 +136,7 @@ export default function PatientDashboard({ token }) {
 
   const fetchMyAppointments = async () => {
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/patient/appointments', {
+      const res = await fetch(`${API_URL}/api/patient/appointments`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -151,7 +151,7 @@ export default function PatientDashboard({ token }) {
     e.preventDefault();
     setIsOnboarding(true);
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/patient/onboarding', {
+      const res = await fetch(`${API_URL}/api/patient/onboarding`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -177,7 +177,7 @@ export default function PatientDashboard({ token }) {
 
   const fetchTimeline = async () => {
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/patient/timeline', {
+      const res = await fetch(`${API_URL}/api/patient/timeline`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) setTimeline(await res.json());
@@ -188,7 +188,7 @@ export default function PatientDashboard({ token }) {
 
   const fetchSlots = async () => {
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/appointments/slots', {
+      const res = await fetch(`${API_URL}/api/appointments/slots`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) setSlots(await res.json());
@@ -199,21 +199,13 @@ export default function PatientDashboard({ token }) {
 
   const fetchRiskHistory = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: pat } = await supabase.from('patients').select('id').eq('user_id', user.id).single();
-      if (pat) {
-        const { data } = await supabase.from('risk_history').select('*').eq('patient_id', pat.id).order('recorded_at', { ascending: true });
-        if (data && data.length > 0) {
-          setRiskHistory(data.map(d => ({ date: new Date(d.recorded_at).toLocaleDateString([], { month: 'short', day: 'numeric' }), risk: d.risk_score })));
-        } else {
-          setRiskHistory([
-            { date: 'Initial', risk: 10 },
-            { date: 'Checkup 1', risk: 15 },
-            { date: 'Current', risk: details?.risk_score || 20 }
-          ]);
-        }
-      }
+      const res = await fetch(`${API_URL}/api/patient/risk-history`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) return;
+      const data = await res.json();
+      setRiskHistory((data || []).map(d => ({
+        date: new Date(d.recorded_at).toLocaleDateString([], { month: 'short', day: 'numeric' }),
+        risk: d.risk_score,
+      })));
     } catch (err) {
       console.error(err);
     }
@@ -222,7 +214,7 @@ export default function PatientDashboard({ token }) {
   const submitSymptoms = async (sos = false) => {
     setIsSubmittingSymptoms(true);
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/patient/symptoms', {
+      const res = await fetch(`${API_URL}/api/patient/symptoms`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -232,7 +224,7 @@ export default function PatientDashboard({ token }) {
       });
       
       if (res.ok) {
-        toast.success(sos ? '🚨 Emergency SOS Dispatched to Doctor' : '✨ Symptoms logged & Risk Score updated.');
+        toast.success(sos ? 'Emergency SOS dispatched to your doctor' : 'Symptoms logged & Risk Score updated.');
         fetchDetails();
         fetchRiskHistory();
         if (!sos) {
@@ -251,7 +243,7 @@ export default function PatientDashboard({ token }) {
   const bookSlot = async (slot) => {
     setSelectedSlot(slot);
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/appointments/book', {
+      const res = await fetch(`${API_URL}/api/appointments/book`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -261,7 +253,7 @@ export default function PatientDashboard({ token }) {
       });
       
       if (res.ok) {
-        toast.success(`🎉 Appointment confirmed for today at ${slot}!`);
+        toast.success(`Appointment confirmed for today at ${slot}!`);
         fetchSlots();
       } else {
         toast.error('Slot already taken or unavailable');
@@ -301,19 +293,14 @@ export default function PatientDashboard({ token }) {
     <div className="min-h-screen bg-[#FFF0F5] text-[#2D2638] flex flex-col font-sans selection:bg-rose-100 selection:text-rose-900 pb-24 md:pb-16 pb-[calc(env(safe-area-inset-bottom)+6rem)]">
       
       
-      {/* Floating Theme Elements */}
-      <div className="floating-butterfly" style={{ top: '15%', left: '5%', animationDelay: '1s' }}></div>
-      <div className="floating-flower" style={{ top: '65%', left: '90%', animationDelay: '3s' }}></div>
-      <div className="floating-butterfly" style={{ top: '80%', left: '10%', animationDelay: '6s' }}></div>
-      <div className="floating-flower" style={{ top: '25%', left: '85%', animationDelay: '8s' }}></div>
 
       {/* Top Header with Behance-inspired greeting */}
       <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-rose-100/80 px-4 md:px-8 py-3.5 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#FF69B4] via-[#DDA0DD] to-[#E6E6FA] p-0.5 shadow-md shadow-rose-500/20">
-              <div className="w-full h-full bg-white rounded-[14px] flex items-center justify-center text-xl">
-                
+              <div className="w-full h-full bg-white rounded-[14px] flex items-center justify-center">
+                <Heart className="w-5 h-5 text-[#FF69B4]" fill="currentColor" strokeWidth={1.5} />
               </div>
             </div>
             <div>
@@ -419,9 +406,9 @@ export default function PatientDashboard({ token }) {
                     const days = daysPregnant % 7;
                     return (
                       <div className="mt-3 bg-rose-50 border border-rose-100 rounded-xl p-3 text-xs text-gray-700 space-y-1">
-                        <p>📅 <strong>Estimated Due Date:</strong> {edd.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                        <p> <strong>Currently:</strong> {wks} weeks {days} days pregnant</p>
-                        <p>📊 <strong>Trimester:</strong> {wks < 13 ? '1st (Weeks 1–13)' : wks < 27 ? '2nd (Weeks 14–27)' : '3rd (Weeks 28–40)'}</p>
+                        <p className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-rose-400" /> <strong>Estimated Due Date:</strong> {edd.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                        <p className="flex items-center gap-1.5"><Baby className="w-3.5 h-3.5 text-rose-400" /> <strong>Currently:</strong> {wks} weeks {days} days pregnant</p>
+                        <p className="flex items-center gap-1.5"><BarChart3 className="w-3.5 h-3.5 text-rose-400" /> <strong>Trimester:</strong> {wks < 13 ? '1st (Weeks 1–13)' : wks < 27 ? '2nd (Weeks 14–27)' : '3rd (Weeks 28–40)'}</p>
                       </div>
                     );
                   })()}
@@ -461,20 +448,20 @@ export default function PatientDashboard({ token }) {
 
           <div className="grid grid-cols-3 gap-3 md:gap-6 mt-8 relative z-10">
             <div className="bg-white/70 backdrop-blur-xl p-5 rounded-[24px] flex flex-col items-center justify-center text-center border border-white shadow-[0_8px_30px_rgb(255,110,127,0.08)] hover:-translate-y-1 transition duration-300 group">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-100/80 to-rose-50 flex items-center justify-center text-2xl shadow-inner mb-3 group-hover:scale-110 transition-transform"></div>
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-100/80 to-rose-50 flex items-center justify-center text-2xl shadow-inner mb-3 group-hover:scale-110 transition-transform"><Baby className="w-6 h-6 text-rose-500" /></div>
               <span className="text-xl md:text-2xl font-bold font-heading text-rose-600 leading-none">{pregnancy.weeksPregnant}<span className="text-sm ml-0.5">wks</span></span>
               {pregnancy.extraDays > 0 && <span className="text-xs font-bold text-rose-400 leading-none mt-0.5">{pregnancy.extraDays} days</span>}
               <span className="text-[10px] md:text-xs uppercase tracking-wider font-bold text-gray-400 mt-2">Pregnant</span>
             </div>
             
             <div className="bg-white/70 backdrop-blur-xl p-5 rounded-[24px] flex flex-col items-center justify-center text-center border border-white shadow-[0_8px_30px_rgb(255,110,127,0.08)] hover:-translate-y-1 transition duration-300 group">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-orange-100/80 to-orange-50 flex items-center justify-center text-2xl shadow-inner mb-3 group-hover:scale-110 transition-transform">📅</div>
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-orange-100/80 to-orange-50 flex items-center justify-center text-2xl shadow-inner mb-3 group-hover:scale-110 transition-transform"><Calendar className="w-6 h-6 text-orange-500" /></div>
               <span className="text-base md:text-xl font-bold font-heading text-gray-800 leading-none">{new Date(details.due_date).toLocaleDateString([], { month: 'short', day: 'numeric' }) || 'TBD'}</span>
               <span className="text-[10px] md:text-xs uppercase tracking-wider font-bold text-gray-400 mt-2">Estimated Due</span>
             </div>
             
             <div className="bg-white/70 backdrop-blur-xl p-5 rounded-[24px] flex flex-col items-center justify-center text-center border border-white shadow-[0_8px_30px_rgb(255,110,127,0.08)] hover:-translate-y-1 transition duration-300 group">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner mb-3 group-hover:scale-110 transition-transform ${details.doctors?.users?.name ? 'bg-gradient-to-tr from-sky-100/80 to-sky-50' : 'bg-gradient-to-tr from-amber-100/80 to-amber-50'}`}></div>
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner mb-3 group-hover:scale-110 transition-transform ${details.doctors?.users?.name ? 'bg-gradient-to-tr from-sky-100/80 to-sky-50' : 'bg-gradient-to-tr from-amber-100/80 to-amber-50'}`}><Stethoscope className={`w-6 h-6 ${details.doctors?.users?.name ? 'text-sky-500' : 'text-amber-500'}`} /></div>
               <span className="text-base md:text-xl font-bold font-heading text-gray-800 leading-none line-clamp-1">
                 {details.doctors?.users?.name ? `Dr. ${details.doctors.users.name.split(' ')[0]}` : '—'}
               </span>
@@ -616,7 +603,7 @@ export default function PatientDashboard({ token }) {
                       className="p-4 rounded-3xl bg-white border border-emerald-100 cursor-pointer transition shadow-sm hover:shadow-md flex flex-col items-center gap-2 group text-center"
                     >
                       <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center text-4xl shadow-inner group-hover:scale-110 transition">
-                        
+                        <Sprout className="w-8 h-8 text-emerald-500" />
                       </div>
                       <span className="text-[11px] font-bold font-heading text-emerald-600 block mt-1">Grabh Sanskar</span>
                     </div>
@@ -676,7 +663,7 @@ export default function PatientDashboard({ token }) {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-rose-50 pb-4">
                   <div>
                     <h3 className="font-heading font-bold text-lg text-gray-800 flex items-center gap-2">
-                      📄 Patient Record Management
+                      <FileText className="w-5 h-5 text-rose-500" /> Patient Record Management
                     </h3>
                     <p className="text-[11px] text-gray-500 font-medium mt-1 uppercase tracking-wider flex flex-wrap gap-1.5">
                       <span className="bg-rose-50 text-rose-600 px-2 py-0.5 rounded-md">Linked List Data Sync</span>
@@ -736,6 +723,13 @@ export default function PatientDashboard({ token }) {
                   </div>
 
                   <div className="h-56">
+                    {riskHistory.length < 2 ? (
+                      <div className="h-full flex flex-col items-center justify-center text-center rounded-2xl border border-dashed border-rose-200 bg-rose-50/30 p-6">
+                        <TrendingUp className="w-8 h-8 text-rose-300 mb-2" />
+                        <p className="text-sm font-semibold text-gray-700">Your trend will appear here</p>
+                        <p className="text-xs text-gray-500 mt-1 max-w-xs">Log your symptoms a couple of times and we will chart how your risk score changes.</p>
+                      </div>
+                    ) : (
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={riskHistory}>
                         <XAxis dataKey="date" stroke="#9ca3af" fontSize={11} />
@@ -751,6 +745,7 @@ export default function PatientDashboard({ token }) {
                         <Line type="monotone" dataKey="risk" stroke="#FF69B4" strokeWidth={3} dot={{ r: 4, fill: '#FF69B4' }} />
                       </LineChart>
                     </ResponsiveContainer>
+                    )}
                   </div>
                 </div>
 
@@ -776,7 +771,7 @@ export default function PatientDashboard({ token }) {
                   <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                       <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-100 to-sky-50 flex items-center justify-center text-3xl shadow-inner border border-white">
-                        
+                        <Stethoscope className="w-8 h-8 text-sky-500" />
                       </div>
                       <div>
                         <h3 className="font-heading font-bold text-xl text-gray-800">
@@ -822,7 +817,7 @@ export default function PatientDashboard({ token }) {
                     {timeline.length === 0 ? (
                       <div className="h-full flex flex-col items-center justify-center text-center p-6 bg-rose-50/30 rounded-2xl border border-dashed border-rose-200">
                         <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-2xl shadow-xs mb-3">
-                          💌
+                          <Mail className="w-6 h-6 text-rose-400" />
                         </div>
                         <h4 className="font-bold text-sm text-gray-700">No medical guidance posted yet</h4>
                         <p className="text-xs text-gray-500 mt-1 max-w-xs leading-relaxed">

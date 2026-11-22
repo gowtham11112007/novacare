@@ -55,7 +55,7 @@ export default function ContractionTimer() {
       setActiveStartTime(null);
       
       if (durationSecs > 60) {
-        toast('Contraction over 1 minute. Keep tracking!', { icon: '⏱️' });
+        toast('Contraction over 1 minute. Keep tracking!');
       }
     } else {
       // Start

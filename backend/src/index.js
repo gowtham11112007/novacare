@@ -95,8 +95,9 @@ async function syncDataStructures() {
   }
 }
 
-// Call on startup
-syncDataStructures();
+// Call on startup. On serverless hosts each cold instance runs this, so requests wait for it to finish.
+const initialSync = syncDataStructures().catch(err => console.error('Initial sync failed:', err));
+app.use(async (req, res, next) => { await initialSync; next(); });
 
 // --- Middleware ---
 const requireAuth = async (req, res, next) => {
@@ -194,7 +195,9 @@ app.get('/api/admin/dashboard', requireAuth, async (req, res) => {
 app.post('/api/admin/auto-assign', requireAuth, async (req, res) => {
   if (req.user.dbRole !== 'admin') return res.status(403).json({ error: 'Forbidden' });
   const { patientId } = req.body;
-  
+  if (!patientId) return res.status(400).json({ error: 'patientId is required' });
+  await syncDataStructures(); // refresh doctor loads before balancing
+
   const doctor = doctorLoadHeap.extractMin();
   if (!doctor) return res.status(400).json({ error: 'No doctors available' });
   if (doctor.current_load >= 20) {
@@ -247,20 +250,39 @@ app.get('/api/doctor/patients', requireAuth, async (req, res) => {
   
   const { data: doc } = await supabase.from('doctors').select('id').eq('user_id', req.user.dbId).single();
   if (!doc) return res.status(404).json({ error: 'Doctor not found' });
-  
-  const riskHeap = doctorRiskHeaps.get(doc.id);
-  if (!riskHeap) return res.json([]);
-  
+
+  // Build this doctor's risk priority queue from fresh rows on every request, so the list is
+  // correct even on a cold or stale serverless instance.
+  const { data: rows, error: rowsError } = await supabase.from('patients')
+    .select('*, users ( name )').eq('assigned_doctor_id', doc.id);
+  if (rowsError) return res.status(500).json({ error: rowsError.message });
+  const riskHeap = new MinHeap((a, b) => b.risk_score - a.risk_score);
+  (rows || []).forEach(p => riskHeap.insert(p));
+  doctorRiskHeaps.set(doc.id, riskHeap);
+
   const sortedPatients = [...riskHeap.heap].sort(riskHeap.compare);
-  res.json(sortedPatients);
+
+  // Attach each patient's most recent mood check-in for the dashboard list
+  const ids = sortedPatients.map(p => p.id);
+  const latestMood = {};
+  if (ids.length) {
+    const { data: moods } = await supabase.from('mood_logs')
+      .select('patient_id, mood, recorded_at').in('patient_id', ids).order('recorded_at', { ascending: false });
+    (moods || []).forEach(m => { if (!latestMood[m.patient_id]) latestMood[m.patient_id] = m.mood; });
+  }
+  res.json(sortedPatients.map(p => ({ ...p, recent_mood: latestMood[p.id] || null })));
 });
 
 app.get('/api/doctor/search', requireAuth, async (req, res) => {
   const { q } = req.query;
   const { data: doc } = await supabase.from('doctors').select('id').eq('user_id', req.user.dbId).single();
-  const trie = doctorTries.get(doc.id);
-  
-  if (!trie) return res.json([]);
+  if (!doc) return res.status(404).json({ error: 'Doctor not found' });
+
+  // Build the prefix Trie from fresh rows so search works on any serverless instance
+  const { data: rows } = await supabase.from('patients').select('*, users ( name )').eq('assigned_doctor_id', doc.id);
+  const trie = new Trie();
+  (rows || []).forEach(p => { if (p.users?.name) trie.insert(p.users.name, p); });
+  doctorTries.set(doc.id, trie);
   const results = trie.searchByPrefix(q || '');
   res.json(results);
 });
@@ -311,8 +333,17 @@ app.get('/api/patient/timeline', requireAuth, async (req, res) => {
   res.json(timeline.toArray()); 
 });
 
+// Patient's own risk score history (risk_history has no client-side RLS policy, so it is served here)
+app.get('/api/patient/risk-history', requireAuth, async (req, res) => {
+  const { data: pat } = await supabase.from('patients').select('id').eq('user_id', req.user.dbId).single();
+  if (!pat) return res.json([]);
+  const { data } = await supabase.from('risk_history').select('risk_score, recorded_at')
+    .eq('patient_id', pat.id).order('recorded_at', { ascending: true }).limit(60);
+  res.json(data || []);
+});
+
 app.get('/api/patient/details', requireAuth, async (req, res) => {
-  const { data: pat } = await supabase.from('patients').select('*, doctors(*, users(name))').eq('user_id', req.user.dbId).single();
+  const { data: pat } = await supabase.from('patients').select('*, users(name), doctors(*, users(name))').eq('user_id', req.user.dbId).single();
   res.json(pat);
 });
 
@@ -962,6 +993,11 @@ app.get('/api/admin/all-patients', requireAuth, async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-  console.log(`Backend server running on port ${PORT}`);
-});
+// Only bind a port when run directly (npm run server); on Vercel the app is exported as a serverless handler.
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Backend server running on port ${PORT}`);
+  });
+}
+
+module.exports = app;

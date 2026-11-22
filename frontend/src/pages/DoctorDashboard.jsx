@@ -1,17 +1,35 @@
+import { MoodIcon } from '../components/MoodIcon';
+import { API_URL } from '../lib/api';
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import {
   Search, Activity, AlertCircle, HeartPulse, Sparkles, Filter, Undo2,
   Stethoscope, LogOut, ChevronRight, Menu, Calendar, Edit2, Check, X,
-  Clock, TrendingUp, Droplets, Weight, Heart, Baby, CheckCircle
+  Clock, TrendingUp, Droplets, Weight, Heart, Baby, CheckCircle, Users, ShieldAlert, Gauge
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import RiskGauge from '../components/RiskGauge';
 import BabyDevelopment from '../components/BabyDevelopment';
 
-const BASE = 'https://novacare-sccg.onrender.com';
+const BASE = API_URL;
+
+const DAY = 864e5;
+const riskTone = (s = 0) =>
+  s >= 80 ? { label: 'Critical', text: 'text-rose-600', chip: 'bg-rose-100 text-rose-700', bar: 'bg-rose-500' }
+  : s > 60 ? { label: 'High', text: 'text-orange-600', chip: 'bg-orange-100 text-orange-700', bar: 'bg-orange-500' }
+  : s >= 30 ? { label: 'Moderate', text: 'text-amber-600', chip: 'bg-amber-100 text-amber-700', bar: 'bg-amber-400' }
+  : { label: 'Low', text: 'text-emerald-600', chip: 'bg-emerald-100 text-emerald-700', bar: 'bg-emerald-500' };
+const gestWeek = (due) => (due ? Math.max(0, Math.floor((Date.now() - (new Date(due).getTime() - 280 * DAY)) / (7 * DAY))) : null);
+const moodTint = {
+  great: 'from-rose-100 to-pink-50 text-rose-500',
+  good: 'from-emerald-100 to-teal-50 text-emerald-500',
+  okay: 'from-amber-100 to-yellow-50 text-amber-500',
+  sad: 'from-sky-100 to-blue-50 text-sky-500',
+  anxious: 'from-violet-100 to-purple-50 text-violet-500',
+};
+const DEFAULT_TINT = 'from-rose-100 to-pink-50 text-rose-500';
 
 export default function DoctorDashboard({ token }) {
   const [patients, setPatients] = useState([]);
@@ -154,7 +172,15 @@ export default function DoctorDashboard({ token }) {
 
   const displayList = (searchQuery ? searchResults : patients).filter(p => showFlaggedOnly ? p.risk_score > 60 : true);
 
-  const moodEmoji = (mood) => ({ great: '', good: '😊', okay: '', sad: '🥺', anxious: '😰', Happy: '😊', Sad: '😔', Anxious: '😟' }[mood] || '😊');
+  const highRiskCount = patients.filter(p => p.risk_score > 60).length;
+  const avgRisk = patients.length ? Math.round(patients.reduce((a, p) => a + (p.risk_score || 0), 0) / patients.length) : 0;
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const riskBuckets = [['Low', 0], ['Moderate', 40], ['High', 70], ['Critical', 90]].map(([label, sample]) => ({
+    label, bar: riskTone(sample).bar, count: patients.filter(p => riskTone(p.risk_score).label === label).length,
+  }));
+
+  const moodEmoji = (mood) => <MoodIcon mood={mood} className="w-6 h-6 text-rose-500" />;
 
   const categoryStyle = (cat) => ({
     Emergency: 'bg-red-50 text-red-600 border-red-100',
@@ -182,34 +208,41 @@ export default function DoctorDashboard({ token }) {
       {/* ─── SIDEBAR ─── */}
       <div className={`fixed inset-y-0 left-0 z-40 w-80 transform transition-transform duration-300 md:relative md:w-1/3 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} bg-white/95 backdrop-blur-md border-r border-rose-100 h-screen overflow-y-auto p-6 flex flex-col shadow-[4px_0_24px_rgba(255,111,97,0.04)]`}>
 
-        
-      {/* Floating Theme Elements */}
-      <div className="floating-butterfly" style={{ top: '15%', left: '5%', animationDelay: '1s' }}></div>
-      <div className="floating-flower" style={{ top: '65%', left: '90%', animationDelay: '3s' }}></div>
-      <div className="floating-butterfly" style={{ top: '80%', left: '10%', animationDelay: '6s' }}></div>
-      <div className="floating-flower" style={{ top: '25%', left: '85%', animationDelay: '8s' }}></div>
-
-      {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className="text-xl font-bold font-heading text-gray-800 flex items-center gap-2">
-              <Stethoscope className="w-5 h-5 text-rose-500" /> My Patients
-            </h2>
-            <span className="text-[10px] uppercase tracking-wider font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-full mt-1 inline-block border border-rose-100">
-              Min-Heap Priority Queue
-            </span>
+        {/* Header */}
+        <div className="flex justify-between items-start mb-5">
+          <div className="flex items-center gap-3">
+            <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-tr from-[#FF69B4] to-[#b57edc] text-white shadow-md shadow-pink-300/40">
+              <Stethoscope className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold font-heading text-gray-900 leading-tight">My Patients</h2>
+              <p className="text-[11px] text-gray-400 font-medium" title="Patients are ordered by a min-heap priority queue on risk score">Sorted by risk priority</p>
+            </div>
           </div>
-          <button onClick={() => supabase.auth.signOut()} className="p-2 text-xs font-semibold text-gray-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition border border-transparent hover:border-rose-200">
+          <button onClick={() => supabase.auth.signOut()} aria-label="Sign out" className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition">
             <LogOut className="w-4 h-4" />
           </button>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 mb-5">
+          {[
+            { label: 'Patients', value: patients.length, tone: 'text-gray-900' },
+            { label: 'High risk', value: highRiskCount, tone: highRiskCount ? 'text-rose-600' : 'text-gray-900' },
+            { label: 'Avg score', value: avgRisk, tone: riskTone(avgRisk).text },
+          ].map(k => (
+            <div key={k.label} className="rounded-2xl bg-gradient-to-b from-white to-rose-50/40 border border-rose-100 px-3 py-2.5 text-center">
+              <p className={`text-xl font-bold font-heading ${k.tone}`}>{k.value}</p>
+              <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400">{k.label}</p>
+            </div>
+          ))}
         </div>
 
         {/* Search + Filter */}
         <div className="flex flex-col gap-3 mb-6">
           <div className="relative">
-            <Search className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none h-full w-4 text-gray-400" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             <input
-              type="text" placeholder="Search patients (Trie)..."
+              type="search" placeholder="Search patients by name" aria-label="Search patients" title="Prefix search powered by a Trie"
               value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
               className="pl-10 block w-full rounded-xl border-gray-200 shadow-sm p-2.5 border outline-none focus:border-[#FF69B4] focus:ring-1 focus:ring-[#FF69B4] text-sm bg-white transition"
             />
@@ -239,24 +272,24 @@ export default function DoctorDashboard({ token }) {
               >
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-rose-100 to-orange-50 flex items-center justify-center text-xl shadow-inner border border-white group-hover:scale-110 transition-transform">
-                      {moodEmoji(p.recent_mood)}
+                    <div className={`w-11 h-11 shrink-0 rounded-full bg-gradient-to-br ${moodTint[p.recent_mood] || DEFAULT_TINT} flex items-center justify-center shadow-inner border border-white group-hover:scale-110 transition-transform`}
+                      title={p.recent_mood ? `Latest mood: ${p.recent_mood}` : 'No mood check-in yet'}>
+                      <MoodIcon mood={p.recent_mood} className="w-5 h-5" />
                     </div>
                     <div>
                       <h3 className={`font-bold font-heading text-sm ${selectedPatient?.id === p.id ? 'text-rose-700' : 'text-gray-800'}`}>
                         {p.users?.name}
                       </h3>
                       <p className="text-[11px] text-gray-500 font-medium flex items-center gap-1 mt-0.5">
-                        <AlertCircle className="w-3 h-3 text-gray-400" />
-                        EDD: {p.due_date ? new Date(p.due_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not set'}
+                        <Calendar className="w-3 h-3 text-gray-400" />
+                        {gestWeek(p.due_date) !== null && <span className="font-semibold text-gray-600">Week {gestWeek(p.due_date)} ·</span>}
+                        EDD {p.due_date ? new Date(p.due_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not set'}
                       </p>
                     </div>
                   </div>
-                  <div className="flex flex-col items-center justify-center bg-white rounded-xl p-1.5 shadow-xs border border-rose-50">
-                    <div className="w-9 h-9 relative mb-0.5">
-                      <RiskGauge score={p.risk_score} size={36} hideText={true} />
-                      <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-gray-700">{p.risk_score}</span>
-                    </div>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <span className={`text-lg font-bold font-heading leading-none ${riskTone(p.risk_score).text}`}>{p.risk_score ?? 0}</span>
+                    <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${riskTone(p.risk_score).chip}`}>{riskTone(p.risk_score).label}</span>
                   </div>
                 </div>
               </motion.div>
@@ -304,6 +337,9 @@ export default function DoctorDashboard({ token }) {
 
         {selectedPatient ? (
           <div className="flex-1 flex flex-col gap-6 pb-12">
+            <button onClick={() => setSelectedPatient(null)} className="self-start inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-rose-600 transition">
+              <ChevronRight className="w-4 h-4 rotate-180" /> Back to overview
+            </button>
 
             {/* ── Patient Header Card ── */}
             <div className="bg-white rounded-3xl border border-rose-100 shadow-[0_8px_30px_rgb(255,110,127,0.06)] p-6 flex justify-between items-start">
@@ -427,10 +463,13 @@ export default function DoctorDashboard({ token }) {
                   {/* Blood Pressure */}
                   <div className="bg-sky-50/50 rounded-2xl p-4 border border-sky-100">
                     <p className="text-[10px] uppercase font-bold text-sky-500 tracking-wider mb-1">Latest BP</p>
-                    <p className="text-2xl font-bold font-heading text-gray-900">
+                    <p className="text-2xl font-bold font-heading text-gray-900 flex items-center gap-2">
                       {wellnessData?.latestVitals?.bp_systolic
                         ? `${wellnessData.latestVitals.bp_systolic}/${wellnessData.latestVitals.bp_diastolic}`
                         : '—'}
+                      {(wellnessData?.latestVitals?.bp_systolic >= 140 || wellnessData?.latestVitals?.bp_diastolic >= 90) && (
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-sans">Elevated</span>
+                      )}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
                       {wellnessData?.latestVitals?.weight_kg ? `Weight: ${wellnessData.latestVitals.weight_kg} kg` : 'No vitals logged'}
@@ -504,7 +543,7 @@ export default function DoctorDashboard({ token }) {
                       </LineChart>
                     </ResponsiveContainer>
                     <div className="flex justify-between text-[10px] text-gray-400 mt-2 px-1">
-                      <span>😰 Overwhelmed</span><span> Neutral</span><span> Radiant</span>
+                      <span>Overwhelmed</span><span>Neutral</span><span>Radiant</span>
                     </div>
                   </>
                 )}
@@ -574,14 +613,82 @@ export default function DoctorDashboard({ token }) {
 
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-center opacity-60 pb-20">
-            <div className="w-20 h-20 bg-white rounded-3xl shadow-sm flex items-center justify-center mb-5 border border-rose-100">
-              <Stethoscope className="w-8 h-8 text-rose-300" />
+          <div className="flex-1 flex flex-col gap-6 pb-12">
+            <div>
+              <p className="text-sm font-semibold text-rose-500">{greeting}</p>
+              <h1 className="font-heading text-3xl md:text-4xl font-bold text-gray-900">Your practice at a glance</h1>
+              <p className="text-sm text-gray-500 mt-1">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
             </div>
-            <h3 className="text-xl font-bold font-heading text-gray-700">No Patient Selected</h3>
-            <p className="text-sm text-gray-500 max-w-sm mt-2 leading-relaxed">
-              Select a patient from the priority queue on the left to view their full health chart.
-            </p>
+
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+              {[
+                { label: 'Assigned patients', value: patients.length, icon: Users, tint: 'from-rose-100 to-pink-50 text-rose-500' },
+                { label: 'High risk', value: highRiskCount, icon: ShieldAlert, tint: 'from-orange-100 to-amber-50 text-orange-500' },
+                { label: 'Average risk score', value: avgRisk, icon: Gauge, tint: 'from-violet-100 to-purple-50 text-violet-500' },
+                { label: "Today's appointments", value: appointments.length, icon: Calendar, tint: 'from-sky-100 to-blue-50 text-sky-500' },
+              ].map(({ label, value, icon: Icon, tint }) => (
+                <div key={label} className="card-warm p-5 flex items-center gap-4">
+                  <div className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${tint}`}><Icon className="h-6 w-6" /></div>
+                  <div>
+                    <p className="text-2xl font-bold font-heading text-gray-900 leading-none">{value}</p>
+                    <p className="text-xs font-semibold text-gray-500 mt-1">{label}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
+              <div className="card-warm p-6 xl:col-span-3">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-heading text-lg font-bold text-gray-900 flex items-center gap-2"><AlertCircle className="w-5 h-5 text-rose-500" /> Needs attention</h3>
+                  <span className="text-xs text-gray-400">Highest risk first</span>
+                </div>
+                {patients.length === 0 ? (
+                  <p className="text-sm text-gray-500 py-8 text-center">No patients are assigned to you yet. They appear here once an administrator assigns them.</p>
+                ) : (
+                  <ul className="divide-y divide-rose-50">
+                    {[...patients].sort((a, b) => (b.risk_score || 0) - (a.risk_score || 0)).slice(0, 5).map(p => {
+                      const t = riskTone(p.risk_score);
+                      return (
+                        <li key={p.id}>
+                          <button onClick={() => setSelectedPatient(p)} className="w-full flex items-center gap-4 py-3 text-left group">
+                            <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br ${moodTint[p.recent_mood] || DEFAULT_TINT}`}>
+                              <MoodIcon mood={p.recent_mood} className="w-5 h-5" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-gray-900 truncate">
+                                {p.users?.name}
+                                {gestWeek(p.due_date) !== null && <span className="ml-2 text-xs font-medium text-gray-400">Week {gestWeek(p.due_date)}</span>}
+                              </p>
+                              <div className="mt-1.5 h-1.5 w-full rounded-full bg-gray-100 overflow-hidden">
+                                <div className={`h-full rounded-full ${t.bar}`} style={{ width: `${Math.min(100, p.risk_score || 0)}%` }} />
+                              </div>
+                            </div>
+                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full whitespace-nowrap ${t.chip}`}>{t.label} · {p.risk_score ?? 0}</span>
+                            <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-rose-500 transition" />
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
+
+              <div className="card-warm p-6 xl:col-span-2">
+                <h3 className="font-heading text-lg font-bold text-gray-900 mb-4">Risk distribution</h3>
+                <div className="space-y-4">
+                  {riskBuckets.map(b => (
+                    <div key={b.label}>
+                      <div className="flex justify-between text-xs font-semibold text-gray-600 mb-1.5"><span>{b.label}</span><span>{b.count}</span></div>
+                      <div className="h-2.5 rounded-full bg-gray-100 overflow-hidden">
+                        <div className={`h-full rounded-full ${b.bar} transition-all duration-700`} style={{ width: `${patients.length ? (b.count / patients.length) * 100 : 0}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-6 text-xs text-gray-400 leading-relaxed">Select a patient to review wellness, vitals and mood trends, and to post guidance.</p>
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -141,3 +141,32 @@
   pointer-events: none;
   opacity: 0;
 }
+
+/* ---- Polish: accessibility, motion and small details ---- */
+html { scroll-behavior: smooth; }
+
+::selection { background: rgba(255, 105, 180, 0.25); color: #5a315d; }
+
+:focus-visible {
+  outline: 2px solid #ff69b4;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Gentle entrance for cards and sections */
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.card-warm { animation: riseIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Respect users who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .floating-butterfly, .floating-flower { display: none; }
+}

@@ -1,3 +1,4 @@
+import { API_URL } from '../lib/api';
 
 import React, { useState, useEffect } from "react";
 import { Scale, HeartPulse, Plus, TrendingUp } from "lucide-react";
@@ -6,9 +7,9 @@ import toast from "react-hot-toast";
 
 export default function VitalsLog({ token }) {
   const [history, setHistory] = useState([]);
-  const [weight, setWeight] = useState("65.8");
-  const [systolic, setSystolic] = useState("118");
-  const [diastolic, setDiastolic] = useState("78");
+  const [weight, setWeight] = useState("");
+  const [systolic, setSystolic] = useState("");
+  const [diastolic, setDiastolic] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -17,7 +18,7 @@ export default function VitalsLog({ token }) {
 
   const fetchVitals = async () => {
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/vitals-history", {
+      const res = await fetch(`${API_URL}/api/patient/vitals-history`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -32,7 +33,7 @@ export default function VitalsLog({ token }) {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/vitals", {
+      const res = await fetch(`${API_URL}/api/patient/vitals`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -78,7 +79,7 @@ export default function VitalsLog({ token }) {
                 type="number"
                 step="0.1"
                 required
-                value={weight}
+                value={weight} placeholder="e.g. 62.5"
                 onChange={e => setWeight(e.target.value)}
                 className="w-full bg-white p-2 rounded-xl text-xs border border-gray-200 outline-none focus:border-rose-400 font-bold"
               />
@@ -92,7 +93,7 @@ export default function VitalsLog({ token }) {
               <input
                 type="number"
                 required
-                value={systolic}
+                value={systolic} placeholder="120"
                 onChange={e => setSystolic(e.target.value)}
                 className="w-full bg-white p-2 rounded-xl text-xs border border-gray-200 outline-none font-bold"
               />
@@ -102,7 +103,7 @@ export default function VitalsLog({ token }) {
               <input
                 type="number"
                 required
-                value={diastolic}
+                value={diastolic} placeholder="80"
                 onChange={e => setDiastolic(e.target.value)}
                 className="w-full bg-white p-2 rounded-xl text-xs border border-gray-200 outline-none font-bold"
               />

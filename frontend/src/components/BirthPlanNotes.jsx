@@ -1,3 +1,4 @@
+import { API_URL } from '../lib/api';
 
 import React, { useState, useEffect } from "react";
 import { FileText, HeartHandshake, Save, CheckCircle } from "lucide-react";
@@ -17,7 +18,7 @@ export default function BirthPlanNotes({ token }) {
 
   const fetchPlan = async () => {
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/birth-plan", {
+      const res = await fetch(`${API_URL}/api/patient/birth-plan`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -39,7 +40,7 @@ export default function BirthPlanNotes({ token }) {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const res = await fetch("https://novacare-sccg.onrender.com/api/patient/birth-plan", {
+      const res = await fetch(`${API_URL}/api/patient/birth-plan`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({

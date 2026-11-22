@@ -99,8 +99,14 @@ CREATE POLICY "Patients can view their own patient record" ON public.patients FO
 );
 
 -- Patient can view their doctor's public info (using subquery)
+-- SECURITY DEFINER helper avoids infinite RLS recursion between patients <-> doctors
+CREATE OR REPLACE FUNCTION public.my_assigned_doctor_ids()
+RETURNS SETOF UUID LANGUAGE sql SECURITY DEFINER STABLE SET search_path = public AS $$
+  SELECT assigned_doctor_id FROM public.patients WHERE user_id = auth.uid()
+$$;
+
 CREATE POLICY "Patients can view their doctor" ON public.doctors FOR SELECT USING (
-  id IN (SELECT assigned_doctor_id FROM public.patients WHERE user_id = auth.uid())
+  id IN (SELECT public.my_assigned_doctor_ids())
 );
 
 -- Patient can view their own advice

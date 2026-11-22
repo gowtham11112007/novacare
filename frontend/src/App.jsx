@@ -1,3 +1,4 @@
+import { API_URL } from './lib/api';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabase';
@@ -36,7 +37,7 @@ function App() {
 
   const fetchRole = async (token) => {
     try {
-      const res = await fetch('https://novacare-sccg.onrender.com/api/users/me', {
+      const res = await fetch(`${API_URL}/api/users/me`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
